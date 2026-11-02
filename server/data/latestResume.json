@@ -1,0 +1,61 @@
+{
+  "atsScore": 85,
+  "qualityRating": "Excellent",
+  "summary": "Resume parsed successfully from \"Kanishka_Resume (1).pdf\". ATS engine verified 4 core technical competencies and established strong structural alignment for software & AI roles.",
+  "detectedSkills": [
+    "Python",
+    "Machine Learning",
+    "Flask",
+    "Docker"
+  ],
+  "missingKeywords": [
+    "AWS Cloud",
+    "Kubernetes",
+    "CI/CD Pipelines",
+    "MLOps",
+    "Vector Search / RAG"
+  ],
+  "formattingIssues": [
+    "Ensure every bullet point follows the Action Verb + Context + Quantified Metric structure",
+    "Hyperlink your GitHub and live project deployments directly in the document"
+  ],
+  "sections": [
+    {
+      "name": "Contact & Portfolio Links",
+      "score": 95,
+      "feedback": "Institutional email, phone, and professional portfolio links detected."
+    },
+    {
+      "name": "Education & Academic Standing",
+      "score": 85,
+      "feedback": "Degree, major, and institutional credentials parsed successfully."
+    },
+    {
+      "name": "Technical Skills Matrix",
+      "score": 65,
+      "feedback": "Identified 4 verified technical skills. Add containerization and cloud deployment keywords."
+    },
+    {
+      "name": "Projects & Work Experience",
+      "score": 90,
+      "feedback": "Great inclusion of quantifiable outcomes and technical project scope."
+    },
+    {
+      "name": "ATS Formatting & Cleanliness",
+      "score": 92,
+      "feedback": "Standard section headers and clean typography parse seamlessly across enterprise ATS scanners."
+    }
+  ],
+  "bulletPointOptimizations": [
+    {
+      "original": "Implemented model training pipelines and backend endpoints for user requests.",
+      "improved": "Architected and deployed asynchronous model serving pipelines using FastAPI and PyTorch, decreasing p95 inference latency by 38% for 5,000+ daily requests.",
+      "impactReason": "Specifies technology stack, quantifies performance improvement (38%), and demonstrates scale (5,000+ daily requests)."
+    },
+    {
+      "original": "Worked on database queries and data processing scripts.",
+      "improved": "Engineered vectorized ETL pipelines in PostgreSQL and Pandas, optimizing query execution speed by 2.4x across 1.2M records.",
+      "impactReason": "Substitutes passive phrasing with strong action verbs and concrete dataset scale metrics."
+    }
+  ]
+}

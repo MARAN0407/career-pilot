@@ -1,0 +1,26 @@
+[
+  {
+    "id": "usr_1793549470716",
+    "name": "Ilamaran",
+    "email": "ilamaran@college.edu",
+    "role": "student",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Ilamaran&backgroundColor=173b63,2f9c95,7567c7",
+    "department": "Computer Science & AI",
+    "institution": "Apex Institute of Technology & Sciences",
+    "registerNumber": "20249116",
+    "semester": "6th Semester",
+    "gpa": 3.85
+  },
+  {
+    "id": "usr_1793549985305",
+    "name": "Jkjjhgfy",
+    "email": "jkjjhgfy@college.edu",
+    "role": "student",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Jkjjhgfy&backgroundColor=173b63,2f9c95,7567c7",
+    "department": "Computer Science & AI",
+    "institution": "Apex Institute of Technology & Sciences",
+    "registerNumber": "20248137",
+    "semester": "6th Semester",
+    "gpa": 3.85
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "id": "rpt_1793588566453",
+  "date": "November 2, 2026",
+  "role": "AI / Machine Learning Engineer",
+  "interviewType": "text",
+  "overallScore": 0,
+  "durationMinutes": 15,
+  "metrics": {
+    "technicalKnowledge": 0,
+    "answerRelevance": 0,
+    "communication": 0,
+    "fluency": 0,
+    "completeness": 0
+  },
+  "strengths": [
+    "Candidate attended and initiated the simulation session"
+  ],
+  "areasToImprove": [
+    "Candidate did not provide verbal or written answers to the prompt questions",
+    "Must actively speak or type responses to demonstrate technical capabilities",
+    "Review the included model answers to understand key algorithmic principles"
+  ],
+  "aiSummary": "Candidate initiated the TEXT interview simulation but did not deliver substantive answers for the prompts. Overall evaluation score is 0/100. Review the detailed model answers for each question to prepare for re-examination.",
+  "transcript": [
+    {
+      "questionNumber": 1,
+      "question": "Explain the difference between L1 (Lasso) and L2 (Ridge) regularization and why L1 produces sparsity in model weights.",
+      "userAnswer": "hi",
+      "score": 0,
+      "feedback": "No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.",
+      "modelAnswer": "L1 regularization (Lasso) adds a penalty proportional to the sum of absolute values of the coefficients (lambda * sum(|w|)), whereas L2 regularization (Ridge) adds a penalty proportional to the sum of squared coefficients (lambda * sum(w^2)). Geometrically, the constraint region for L1 is a diamond/polytope with sharp vertices on the coordinate axes. When the loss function contours expand, they are most likely to hit these sharp corners on the axes first, causing non-essential weights to become exactly zero, which achieves feature sparsity. In contrast, L2 has a smooth circular/spherical constraint region, which scales down weights smoothly without forcing them to zero.",
+      "keypointsCovered": [],
+      "keypointsMissing": [
+        "L1 adds the sum of absolute values of weights penalty (|w|), L2 adds sum of squared weights penalty (w^2)",
+        "L1 cost contour has diamond sharp corners that intersect coordinate axes at zero, forcing redundant weights to zero",
+        "L2 shrinks weights asymptotically towards zero without setting them strictly to zero",
+        "L1 performs feature selection, while L2 is effective against multicollinearity"
+      ],
+      "status": "Unanswered"
+    },
+    {
+      "questionNumber": 2,
+      "question": "Explain the vanishing gradient problem in deep neural networks when using Sigmoid activation functions. How does ReLU or Batch Normalization solve it?",
+      "userAnswer": "(Silence / No answer recorded)",
+      "score": 0,
+      "feedback": "No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.",
+      "modelAnswer": "The vanishing gradient problem occurs because the first derivative of the sigmoid function peaks at 0.25 and approaches 0 for large positive or negative inputs. By the chain rule, gradients backpropagating through N layers require computing products of these derivatives. For example, multiplying fractions smaller than 0.25 across dozens of layers causes the gradient to shrink exponentially toward zero, preventing earlier layers from updating. ReLU solves this because its gradient is constantly 1 for all positive inputs, eliminating decay. Batch Normalization normalizes the pre-activation distributions, preventing inputs from shifting into the saturated saturation zones where derivatives vanish.",
+      "keypointsCovered": [],
+      "keypointsMissing": [
+        "The derivative of the Sigmoid function has a maximum value of 0.25",
+        "During backpropagation across multiple layers, multiplying many values <= 0.25 causes gradients to exponentially decay toward zero",
+        "Early layer weights receive negligible gradients and fail to learn",
+        "ReLU solves this because its derivative is a constant 1 for positive inputs",
+        "Batch Normalization standardizes activations to prevent inputs from saturating in the tails"
+      ],
+      "status": "Unanswered"
+    },
+    {
+      "questionNumber": 3,
+      "question": "How does self-attention in the Transformer architecture compute relationships between tokens? Describe the Query, Key, and Value dot-product calculation.",
+      "userAnswer": "(Silence / No answer recorded)",
+      "score": 0,
+      "feedback": "No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.",
+      "modelAnswer": "In Transformers, self-attention computes how each token in a sequence attends to every other token. Input embeddings are projected into three linear representations: Query (Q), Key (K), and Value (V). The dot product Q * K^T measures pairwise affinity between tokens. Because dot products grow large in high dimensions (d_k), they are scaled by 1/sqrt(d_k) to prevent softmax from saturating into near-zero gradient regions. A softmax function is then applied along rows to generate probability attention weights summing to 1. Finally, these attention weights are multiplied by V to produce a context-aware representation for each token.",
+      "keypointsCovered": [],
+      "keypointsMissing": [
+        "Formula: Attention(Q, K, V) = softmax((Q * K^T) / sqrt(d_k)) * V",
+        "Query represents the current token looking for context, Key represents keys of other tokens to match against, and Value holds token information",
+        "Dot product Q * K^T computes similarity/relevance scores between all token pairs",
+        "Division by sqrt(d_k) stabilizes variance and prevents softmax from entering regions with vanishing gradients",
+        "Softmax normalizes scores into attention weights that weight the Value vectors"
+      ],
+      "status": "Unanswered"
+    },
+    {
+      "questionNumber": 4,
+      "question": "If you have an imbalanced dataset where the positive class is only 1% of total samples, why is Accuracy a misleading metric? What metrics would you use instead?",
+      "userAnswer": "(Silence / No answer recorded)",
+      "score": 0,
+      "feedback": "No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.",
+      "modelAnswer": "On a dataset with 99% negative and 1% positive examples, standard Accuracy is deceptive because a dumb model that predicts \"negative\" for every single sample trivially achieves 99% accuracy, despite having 0% recall on the critical class (e.g., fraud or disease). Instead, we evaluate using Precision (TP / (TP + FP)), Recall (TP / (TP + FN)), and the F1-Score (harmonic mean of Precision and Recall). Additionally, the Precision-Recall Area Under Curve (PR-AUC) is much more informative than ROC-AUC when dealing with heavily skewed distributions. Tuning classification decision thresholds and applying class weighting or focal loss also ensures the minority class is prioritized.",
+      "keypointsCovered": [],
+      "keypointsMissing": [
+        "Accuracy Paradox: A trivial naive model predicting only the majority negative class scores 99% accuracy while having zero utility",
+        "Precision measures what fraction of predicted positives are true positives",
+        "Recall / Sensitivity measures what fraction of actual positives were successfully identified",
+        "F1-score (harmonic mean of Precision and Recall) or PR-AUC provide balanced evaluation on the minority class",
+        "Techniques like class weighting, focal loss, or threshold tuning improve minority detection"
+      ],
+      "status": "Unanswered"
+    },
+    {
+      "questionNumber": 5,
+      "question": "Describe a situation where a machine learning model you built failed to perform well in validation or testing. How did you debug and resolve the issue?",
+      "userAnswer": "(Silence / No answer recorded)",
+      "score": 0,
+      "feedback": "No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.",
+      "modelAnswer": "A strong behavioral answer follows the STAR framework. For instance: Situation: During an image classification project, my ResNet model attained 98% training accuracy but stalled at 61% validation accuracy. Task: I was tasked with identifying the root cause and boosting generalization without buying more data. Action: I conducted systematic error analysis, checking loss curves and confusion matrices. I discovered subtle data leakage in the initial random train/val split because multiple augmented frames from the same video were present in both sets. I restructured the split by unique patient/video IDs, added heavy data augmentation (mixup and random crop), and applied Dropout (0.3). Result: Overfitting was resolved, and test accuracy stabilized at 88.5%, successfully meeting project production requirements.",
+      "keypointsCovered": [],
+      "keypointsMissing": [
+        "Follows structured STAR method (Situation, Task, Action, Result)",
+        "Identifies clear failure symptom (e.g. overfitting, data leakage, distribution shift, label noise)",
+        "Methodical diagnostic steps (confusion matrix, error analysis, validation splits)",
+        "Actionable resolution (feature engineering, data cleaning, regularization, data collection)",
+        "Quantified improvement in final metric"
+      ],
+      "status": "Unanswered"
+    }
+  ]
+}
