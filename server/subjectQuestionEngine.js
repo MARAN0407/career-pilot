@@ -238,6 +238,52 @@ const CURATED_SUBJECT_QUESTIONS = {
       explanation: 'Parameterized queries eliminate SQL injection entirely by precompiling the SQL statement execution plan before user parameters are bound, preventing parameter content from altering query semantics.',
       improvementTip: 'Contrast Boolean-based vs Time-based extraction techniques, describe the binary search / character-by-character inference process, and emphasize Prepared Statements as the primary defense.'
     }
+  ],
+
+  // Mechanical Engineering: Heat and Mass Transfer
+  'Heat and Mass Transfer': [
+    {
+      difficulty: 'Beginner',
+      questionText: 'State Fourier’s law of heat conduction, Newton’s law of cooling, and the Stefan-Boltzmann law of thermal radiation, defining all terms and units.',
+      requiredKeywords: ['fourier', 'conduction', 'convection', 'radiation', 'stefan-boltzmann', 'heat flux', 'thermal conductivity'],
+      expectedKeypoints: [
+        'Fourier\'s Law of Conduction: q = -k * A * (dT/dx), where k is thermal conductivity in W/(m*K)',
+        'Newton\'s Law of Cooling (Convection): q = h * A * (Ts - T_infinity), where h is convective heat transfer coefficient in W/(m^2*K)',
+        'Stefan-Boltzmann Law (Radiation): q = epsilon * sigma * A * (Ts^4 - T_surr^4), where sigma is Stefan-Boltzmann constant (5.67e-8 W/(m^2*K^4))',
+        'Distinguishes between conductive atomic collisions, convective fluid bulk motion, and radiative electromagnetic photon transport'
+      ],
+      modelAnswer: 'The three fundamental modes of heat transfer are governed by: 1) Conduction (Fourier’s Law): q = -k * A * (dT/dx), where q is heat transfer rate (W), k is thermal conductivity (W/(m·K)), A is area (m²), and dT/dx is temperature gradient. The negative sign denotes heat flows down the temperature gradient. 2) Convection (Newton’s Law of Cooling): q = h * A * (Ts - T_inf), where h is the convective heat transfer coefficient (W/(m²·K)), Ts is surface temperature, and T_inf is bulk fluid temperature. 3) Radiation (Stefan-Boltzmann Law): q = epsilon * sigma * A * (Ts⁴ - T_surr⁴), where epsilon is surface emissivity (0 <= epsilon <= 1) and sigma is the Stefan-Boltzmann constant (5.670374e-8 W/(m²·K⁴)) for absolute temperatures in Kelvin.',
+      explanation: 'Unlike conduction and convection which require a physical material medium for energy exchange, thermal radiation propagates through electromagnetic waves and operates efficiently even across a vacuum.',
+      improvementTip: 'State the mathematical formula for each of the three modes, clearly identify all variables with their SI units, and explain the physical necessity of the minus sign in Fourier’s law.'
+    },
+    {
+      difficulty: 'Intermediate',
+      questionText: 'Compare the Logarithmic Mean Temperature Difference (LMTD) method and the Effectiveness-NTU method for heat exchanger analysis. When is Effectiveness-NTU strictly required?',
+      requiredKeywords: ['lmtd', 'ntu', 'effectiveness', 'heat exchanger', 'counter-flow', 'parallel-flow', 'heat capacity'],
+      expectedKeypoints: [
+        'LMTD method: q = U * A * Delta_T_lm * F, where Delta_T_lm = (Delta_T1 - Delta_T2) / ln(Delta_T1 / Delta_T2)',
+        'LMTD is straightforward when both inlet and outlet temperatures are known or specified in design sizing',
+        'Effectiveness-NTU method: epsilon = q_actual / q_max, where q_max = C_min * (T_hot,in - T_cold,in)',
+        'Effectiveness-NTU is strictly required when outlet temperatures are unknown and performance/rating of an existing heat exchanger is being calculated without tedious iteration'
+      ],
+      modelAnswer: 'The LMTD (Logarithmic Mean Temperature Difference) method calculates heat transfer via q = U * A * F * Delta_T_lm. It is directly suited for design sizing problems where all fluid inlet and outlet temperatures are known or specified. When outlet temperatures are unknown (rating/performance problems of an existing heat exchanger), LMTD requires laborious trial-and-error iterations. In contrast, the Effectiveness-NTU (epsilon-NTU) method eliminates iteration by defining effectiveness epsilon = q / q_max = q / (C_min * (T_h,in - T_c,in)), where NTU = U*A / C_min. It directly solves for outlet temperatures using known inlet conditions, heat capacity rates C_min and C_max, and heat exchanger geometry.',
+      explanation: 'Counter-flow heat exchangers consistently provide a higher LMTD and effectiveness than parallel-flow exchangers for identical heat transfer surface areas, because the cold fluid can exit at a temperature higher than the hot fluid outlet temperature.',
+      improvementTip: 'Contrast design sizing (LMTD) versus performance rating (NTU), formulate the maximum possible heat transfer rate equation (q_max = C_min * Delta_T_max), and highlight counter-flow thermodynamic superiority.'
+    },
+    {
+      difficulty: 'Advanced',
+      questionText: 'Analyze transient heat conduction with spatial temperature gradients in a solid. Define the Biot number (Bi) and Fourier number (Fo), and explain why lumped capacitance analysis fails when Bi > 0.1.',
+      requiredKeywords: ['transient', 'biot number', 'fourier number', 'lumped capacitance', 'conduction resistance', 'heisler charts'],
+      expectedKeypoints: [
+        'Biot Number: Bi = (h * L_c) / k_solid, representing ratio of internal conductive resistance to external convective resistance',
+        'Lumped capacitance assumes uniform internal temperature at any instant (dT/dx approximately 0)',
+        'When Bi > 0.1, internal conductive thermal resistance cannot be neglected, producing significant spatial temperature gradients within the body',
+        'Analysis for Bi > 0.1 requires solving the 1D/2D transient diffusion equation using separation of variables, infinite series, or Heisler/Grobe charts'
+      ],
+      modelAnswer: 'In transient heat transfer, the Biot number Bi = (h * Lc) / k compares internal conductive resistance inside the solid (Lc / (k*A)) to external convective thermal resistance at the boundary (1 / (h*A)), where Lc = Volume / Surface Area. The lumped capacitance model assumes spatial temperature uniformity (T(x,t) = T(t)), which is accurate within 5% error only when Bi <= 0.1, meaning conduction inside the solid is so fast relative to surface convection that internal gradients are negligible. When Bi > 0.1, internal resistance dominates, creating steep thermal gradients across the core. In such cases, lumped capacitance fails, requiring the full transient heat diffusion equation (d²T/dx² = (1/alpha) * dT/dt) solved via Fourier series separation of variables, one-term transient approximations, or Heisler charts parameterized by Fourier number Fo = alpha * t / Lc².',
+      explanation: 'The Fourier number Fo represents dimensionless time, scaling thermal diffusion depth against the physical dimension squared.',
+      improvementTip: 'Express Bi as the ratio of internal conduction resistance to external convection resistance, explain the physical consequence of steep spatial gradients when Bi > 0.1, and define the Fourier number.'
+    }
   ]
 };
 
