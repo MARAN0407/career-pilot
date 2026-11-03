@@ -147,7 +147,7 @@ export const mockAnnouncements: Announcement[] = [
     authorRole: 'Course Faculty',
     authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     timestamp: '3 days ago',
-    content: 'Assignment 3: "Implementing Convolutional Kernels & Pooling Layers from Scratch" has been posted. Due date is Friday at 11:59 PM. Plagiarism checks are automated through Career Pilot code grading engine.',
+    content: 'Assignment 3: "Implementing Convolutional Kernels & Pooling Layers from Scratch" has been posted. Due date is Friday at 11:59 PM. Plagiarism checks are automated through Career Accelerator code grading engine.',
     attachments: [
       { name: 'Assignment_03_Starter_Notebook.ipynb', type: 'link', url: '#' }
     ],
@@ -614,7 +614,7 @@ export const mockRoadmapMilestones: RoadmapMilestone[] = [
     skills: ['Technical Problem Solving', 'STAR Communication', 'System Architecture', 'Live Coding'],
     status: 'in_progress',
     completionPercentage: 65,
-    recommendedResources: ['Career Pilot Interview Center', 'Resume AI Scanner']
+    recommendedResources: ['Career Accelerator Interview Center', 'Resume AI Scanner']
   },
   {
     id: 'm_08',
@@ -624,7 +624,7 @@ export const mockRoadmapMilestones: RoadmapMilestone[] = [
     skills: ['Offer Negotiation', 'Team Fit', 'Professional Polish'],
     status: 'upcoming',
     completionPercentage: 0,
-    recommendedResources: ['Career Pilot Job Matcher', 'College Career Fair 2026']
+    recommendedResources: ['Career Accelerator Job Matcher', 'College Career Fair 2026']
   }
 ];
 

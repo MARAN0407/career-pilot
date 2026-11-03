@@ -57,81 +57,55 @@ function shuffleArray(array) {
   return arr;
 }
 
-// GET /api/interview/questions?department=...&category=...&count=...&difficulty=...
+import { generateSubjectQuestions } from '../subjectQuestionEngine.js';
+import { getSubjectsForDepartment, isValidDepartment, DEPARTMENT_SUBJECTS } from '../departmentSubjects.js';
+
+// GET /api/interview/questions?department=...&subject=...&category=...&count=...&difficulty=...
 router.get('/questions', (req, res) => {
-  const { department, category, count, difficulty } = req.query;
+  let { department, subject, category, count = 5, difficulty = 'Intermediate' } = req.query;
 
-  let pool = [...interviewQuestions];
+  // Department handling
+  if (!department || department === 'all' || department === 'All') {
+    department = 'Computer Science and Engineering (CSE)';
+  }
 
-  // 1. Department-based filtering
-  let deptCode = null;
-  if (department && department !== 'All' && department !== 'all') {
-    const dUpper = department.toUpperCase();
-    if (dUpper.includes('ELECTRONIC') || dUpper.includes('ECE') || dUpper.includes('COMMUNICATION')) deptCode = 'ECE';
-    else if (dUpper.includes('COMPUTER') || dUpper.includes('CSE') || dUpper.includes('SOFTWARE')) deptCode = 'CSE';
-    else if (dUpper.includes('AI') || dUpper.includes('ARTIFICIAL') || dUpper.includes('DATA SCIENCE') || dUpper.includes('MACHINE LEARNING')) deptCode = 'AI & ML';
-    else if (dUpper.includes('ELECTRICAL') || dUpper.includes('EEE') || dUpper.includes('POWER')) deptCode = 'EEE';
-    else if (dUpper.includes('MECHANICAL') || dUpper.includes('MECH')) deptCode = 'MECH';
-    else if (dUpper.includes('CIVIL') || dUpper.includes('STRUCT')) deptCode = 'CIVIL';
-    else if (dUpper.includes('INFO') || dUpper.includes('IT')) deptCode = 'CSE';
+  // Target subject: prefer subject parameter, fallback to category if it's a valid subject
+  let targetSubject = subject;
+  if (!targetSubject && category && category !== 'all' && category !== 'Mixed') {
+    targetSubject = category;
+  }
 
-    if (deptCode) {
-      pool = interviewQuestions.filter(q => q.department === deptCode || q.department === 'COMMON');
+  // If still no subject, pick the first subject from that department
+  if (!targetSubject) {
+    const deptSubjects = getSubjectsForDepartment(department);
+    if (deptSubjects && deptSubjects.length > 0) {
+      targetSubject = deptSubjects[0];
+    } else {
+      targetSubject = 'Programming in C and Data Structures';
     }
   }
 
-  // 2. Category filtering
-  if (category && category !== 'All' && category !== 'all' && category !== 'Mixed') {
-    const catLower = category.toLowerCase();
-    const catFiltered = pool.filter(q => 
-      q.category.toLowerCase() === catLower ||
-      q.category.toLowerCase().includes(catLower) ||
-      catLower.includes(q.category.toLowerCase())
-    );
-    if (catFiltered.length > 0) {
-      pool = catFiltered;
-    }
+  try {
+    const qCount = Math.min(12, Math.max(3, parseInt(count, 10) || 5));
+    const questions = generateSubjectQuestions(department, targetSubject, difficulty, qCount);
+
+    return res.json({
+      success: true,
+      department,
+      subject: targetSubject,
+      difficulty,
+      totalQuestions: questions.length,
+      questions
+    });
+  } catch (err) {
+    console.error('Error generating subject questions:', err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+      department,
+      subject: targetSubject
+    });
   }
-
-  // 3. Difficulty filtering
-  if (difficulty && difficulty !== 'All') {
-    const diffFiltered = pool.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
-    if (diffFiltered.length > 0) pool = diffFiltered;
-  }
-
-  // Fallback to full pool if somehow empty
-  if (pool.length === 0) {
-    pool = [...interviewQuestions];
-  }
-
-  // Shuffle pool using Fisher-Yates
-  const shuffled = shuffleArray(pool);
-
-  // Take requested count (default 5, min 3, max 15)
-  const questionCount = Math.min(15, Math.max(3, parseInt(count, 10) || 5));
-  const selected = shuffled.slice(0, questionCount);
-
-  // Map out questions with dynamic numbering
-  const candidateQuestions = selected.map((q, idx) => ({
-    id: q.id,
-    questionNumber: idx + 1,
-    totalQuestions: selected.length,
-    role: q.role,
-    department: q.department,
-    departmentName: q.departmentName,
-    difficulty: q.difficulty,
-    category: q.category,
-    questionText: q.questionText,
-    expectedKeypoints: q.expectedKeypoints
-  }));
-
-  res.json({
-    success: true,
-    department: deptCode || department || 'General Engineering',
-    category: category || 'Department Core & Systems',
-    totalPoolSize: pool.length,
-    questions: candidateQuestions
-  });
 });
 
 // POST /api/interview/evaluate

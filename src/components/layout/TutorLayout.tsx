@@ -95,7 +95,7 @@ export const TutorLayout: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base text-[#173B63] tracking-tight">Career Pilot</span>
+                <span className="font-extrabold text-base text-[#173B63] tracking-tight">Career Accelerator</span>
                 <span className="px-1.5 py-0.5 bg-blue-50 text-[#173B63] text-[10px] font-bold rounded-md border border-blue-200">Faculty</span>
               </div>
               <p className="text-[11px] text-slate-500">Tutor & LMS Portal</p>
@@ -186,7 +186,7 @@ export const TutorLayout: React.FC = () => {
                   <div className="w-8 h-8 rounded-xl bg-[#173B63] flex items-center justify-center text-white">
                     <GraduationCap className="w-4 h-4" />
                   </div>
-                  <span className="font-bold text-sm text-[#173B63]">Career Pilot</span>
+                  <span className="font-bold text-sm text-[#173B63]">Career Accelerator</span>
                 </div>
                 <button onClick={() => setIsMobileOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
                   <X className="w-5 h-5" />

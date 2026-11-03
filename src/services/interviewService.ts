@@ -11,14 +11,16 @@ const LATEST_REPORT_KEY = 'latest_interview_report';
 export const interviewService = {
   async getQuestions(
     type: InterviewType = 'camera', 
-    category?: string, 
+    subject?: string, 
     count: number = 5,
-    department?: string
+    department?: string,
+    difficulty: string = 'Intermediate'
   ): Promise<InterviewQuestion[]> {
     try {
       const queryParams = new URLSearchParams();
       if (department && department !== 'All') queryParams.append('department', department);
-      if (category && category !== 'All') queryParams.append('category', category);
+      if (subject && subject !== 'All') queryParams.append('subject', subject);
+      if (difficulty) queryParams.append('difficulty', difficulty);
       if (count) queryParams.append('count', count.toString());
 
       const res = await fetch(`/api/interview/questions?${queryParams.toString()}`);

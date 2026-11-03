@@ -1,5 +1,5 @@
 // ==========================================
-// CAREER PILOT - COMPLETE TYPES DEFINITIONS
+// CAREER ACCELERATOR - COMPLETE TYPES DEFINITIONS
 // ==========================================
 
 export type UserRole = 'student' | 'tutor' | 'admin';
@@ -199,9 +199,15 @@ export interface InterviewQuestion {
   questionNumber: number;
   totalQuestions: number;
   role: string;
+  department?: string;
+  subject?: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   questionText: string;
   expectedKeypoints: string[];
+  requiredKeywords?: string[];
+  modelAnswer?: string;
+  explanation?: string;
+  improvementTip?: string;
   category: string;
   idealDuration?: string;
 }
@@ -210,9 +216,17 @@ export interface InterviewResultScorecard {
   id: string;
   date: string;
   role: string;
+  department?: string;
+  subject?: string;
   interviewType: InterviewType;
   overallScore: number;
   durationMinutes: number;
+  totalQuestions?: number;
+  correctCount?: number;
+  partiallyCorrectCount?: number;
+  incorrectCount?: number;
+  performanceFeedback?: string;
+  recommendedTopics?: string[];
   metrics: {
     technicalKnowledge: number;
     answerRelevance: number;
@@ -220,15 +234,20 @@ export interface InterviewResultScorecard {
     fluency: number;
     completeness: number;
   };
-  strengths: string[];
-  areasToImprove: string[];
-  aiSummary: string;
+  strengths?: string[];
+  areasToImprove?: string[];
+  aiSummary?: string;
   transcript: {
     questionNumber: number;
     question: string;
     userAnswer: string;
+    correctAnswer?: string;
+    result?: 'Correct' | 'Partially Correct' | 'Incorrect';
+    explanation?: string;
     feedback: string;
     score: number;
+    department?: string;
+    subject?: string;
   }[];
 }
 

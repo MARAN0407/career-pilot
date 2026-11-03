@@ -23,7 +23,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    service: 'Career Pilot AI & Academic Intelligence Backend'
+    service: 'Career Accelerator AI & Academic Intelligence Backend'
   });
 });
 
@@ -40,7 +40,7 @@ app.use((req, res) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🚀 Career Pilot Backend Server running on port ${PORT}`);
+  console.log(`🚀 Career Accelerator Backend Server running on port ${PORT}`);
   console.log(`   - Auth API:       http://localhost:${PORT}/api/auth`);
   console.log(`   - Resume ATS API: http://localhost:${PORT}/api/resume`);
   console.log(`   - Interview API:  http://localhost:${PORT}/api/interview`);

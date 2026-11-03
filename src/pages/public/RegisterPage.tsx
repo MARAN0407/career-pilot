@@ -33,8 +33,8 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
         <div className="p-6 bg-gradient-to-r from-[#173B63] to-[#2F9C95] text-white text-center space-y-1">
-          <h2 className="text-xl font-bold">Register for Career Pilot</h2>
-          <p className="text-xs text-slate-200">Connect with college classrooms and AI career tools</p>
+          <h2 className="text-xl font-bold">Register for Career Accelerator</h2>
+          <p className="text-xs text-slate-200">Connect with department intelligence and AI career tools</p>
         </div>
 
         <form onSubmit={handleRegister} className="p-6 sm:p-8 space-y-4 text-xs">

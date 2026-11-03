@@ -30,9 +30,9 @@ export const LandingPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg text-[#173B63] tracking-tight">Career Pilot</span>
+              <span className="font-extrabold text-lg text-[#173B63] tracking-tight">Career Accelerator</span>
               <span className="px-2 py-0.5 rounded bg-blue-50 text-[#173B63] text-[10px] font-bold border border-blue-200">
-                Hub
+                Platform
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium">AI-Powered Learning & Career Portal</p>
@@ -171,15 +171,15 @@ export const LandingPage: React.FC = () => {
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="font-bold text-white text-sm">Career Pilot</span>
-              <p className="text-[10px] text-slate-400">Apex Institute of Technology & AI</p>
+              <span className="font-bold text-white text-sm">Career Accelerator</span>
+              <p className="text-[10px] text-slate-400">Engineering & Career Intelligence Platform</p>
             </div>
           </div>
 
           <div className="flex items-center gap-6">
             <button onClick={() => navigate('/login/student')} className="hover:text-white transition">Student Login</button>
             <button onClick={() => navigate('/register')} className="hover:text-white transition">Register</button>
-            <span className="text-slate-500">© 2026 Career Pilot Platform</span>
+            <span className="text-slate-500">© 2026 Career Accelerator Platform</span>
           </div>
         </div>
       </footer>

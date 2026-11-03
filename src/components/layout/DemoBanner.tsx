@@ -11,8 +11,8 @@ export const DemoBanner: React.FC = () => {
     <div className="bg-gradient-to-r from-[#173B63] to-[#2F9C95] text-white text-[11px] px-4 py-1.5 flex items-center justify-between z-50 select-none shadow-xs">
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
-        <span className="font-bold text-white">Career Pilot:</span>
-        <span className="hidden sm:inline text-slate-100">AI Student Learning & Career Intelligence</span>
+        <span className="font-bold text-white">Career Accelerator:</span>
+        <span className="hidden sm:inline text-slate-100">AI Student Career & Placement Intelligence</span>
         <span className="px-2 py-0.5 bg-white/20 text-white text-[10px] font-bold rounded-md backdrop-blur-xs flex items-center gap-1">
           <GraduationCap className="w-3 h-3 text-teal-300" />
           Student Workspace

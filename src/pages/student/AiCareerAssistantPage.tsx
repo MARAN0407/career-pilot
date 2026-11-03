@@ -10,7 +10,7 @@ export const AiCareerAssistantPage: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
     {
       sender: 'ai',
-      text: `Hello ${userName}! I'm your Career Pilot AI Mentor. I have access to your academic coursework in Machine Learning, your resume ATS score, and your latest mock interview analytics.\n\nHow can I assist your career and interview preparation today?`
+      text: `Hello ${userName}! I'm your Career Accelerator AI Mentor. I have access to your academic coursework, your resume ATS score, and your latest department mock interview analytics.\n\nHow can I assist your career and interview preparation today?`
     }
   ]);
   const [input, setInput] = useState('');
@@ -90,7 +90,7 @@ export const AiCareerAssistantPage: React.FC = () => {
               <Sparkles className="w-4 h-4 text-teal-300" />
             </div>
             <div>
-              <h3 className="font-bold text-xs">Career Pilot AI Model v3.2</h3>
+              <h3 className="font-bold text-xs">Career Accelerator AI Model v3.2</h3>
               <p className="text-[10px] text-slate-200">Personalized to {userName} • CS Junior</p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-// Career Pilot HTTP & LocalStorage Client connecting to Express Backend
+// Career Accelerator HTTP & LocalStorage Client connecting to Express Backend
 
 const STORAGE_KEY_PREFIX = 'career_pilot_';
 const API_BASE = '/api';

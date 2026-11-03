@@ -79,7 +79,7 @@ export const StudentDashboard: React.FC = () => {
             Welcome back, {user.name} 👋
           </h1>
           <p className="text-xs sm:text-sm text-slate-200 max-w-xl leading-relaxed">
-            Your AI career pilot is active. Prepare with department-specific technical mock interviews, ATS resume diagnostics, and placement readiness tracking.
+            Your AI Career Accelerator is active. Prepare with department-specific technical mock interviews, ATS resume diagnostics, and placement readiness tracking.
           </p>
         </div>
 

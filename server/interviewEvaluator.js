@@ -1,48 +1,68 @@
 import { interviewQuestions } from './questionsData.js';
 
 /**
- * Evaluates candidate responses against question rubrics, benchmark keywords, and model answers.
+ * Evaluates candidate responses against department and subject question rubrics,
+ * benchmark keywords, and correct model answers.
  */
 export function evaluateInterviewAnswers(type, submittedAnswers) {
-  const durationMinutes = Math.max(1, Math.round(submittedAnswers.length * 3));
+  const durationMinutes = Math.max(1, Math.round(submittedAnswers.length * 2.5));
   
   let totalScoreSum = 0;
-  let totalAnsweredCount = 0;
+  let correctCount = 0;
+  let partiallyCorrectCount = 0;
+  let incorrectCount = 0;
+  const missingTopicSet = new Set();
   
   const evaluatedTranscript = submittedAnswers.map((item, index) => {
-    const questionObj = interviewQuestions.find(q => q.id === item.questionId) || 
-      interviewQuestions[index] || {
-        questionText: item.question || `Question ${index + 1}`,
-        expectedKeypoints: ['Clear technical articulation', 'Structured logic', 'Concrete terminology'],
-        requiredKeywords: ['technical', 'analysis', 'concept'],
-        modelAnswer: 'A comprehensive, domain-specific explanation addressing core principles and tradeoffs.'
-      };
+    // Check if the question metadata was supplied directly with the answer submission
+    // or look it up in questionsData.js
+    const questionObj = {
+      questionText: item.question || item.questionText || `Question ${index + 1}`,
+      expectedKeypoints: item.expectedKeypoints || ['Clear technical articulation', 'Core principles and definitions', 'Concrete terminology and applications'],
+      requiredKeywords: item.requiredKeywords || ['principle', 'system', 'operation', 'engineering'],
+      modelAnswer: item.modelAnswer || item.correctAnswer || 'A comprehensive, domain-accurate technical explanation addressing the core principles, working mechanisms, and practical applications.',
+      explanation: item.explanation || 'This fundamental engineering concept establishes the governing principles and operational boundaries for this subject.',
+      improvementTip: item.improvementTip || 'Structure your answer by stating the formal definition first, detailing the physical/mathematical mechanism, and concluding with a concrete application or tradeoff.',
+      department: item.department || 'Engineering',
+      subject: item.subject || 'Technical Core'
+    };
+
+    // If matching ID found in static interviewQuestions, take model details if not present
+    const staticMatch = interviewQuestions.find(q => q.id === item.questionId);
+    if (staticMatch) {
+      if (!item.modelAnswer) questionObj.modelAnswer = staticMatch.modelAnswer;
+      if (!item.requiredKeywords) questionObj.requiredKeywords = staticMatch.requiredKeywords;
+      if (!item.expectedKeypoints) questionObj.expectedKeypoints = staticMatch.expectedKeypoints;
+    }
 
     const rawText = (item.answerText || '').trim();
     const cleanLower = rawText.toLowerCase();
 
     // 1. Detect silence / empty / trivial non-answer
     const isSilenceOrEmpty = !rawText || 
-      rawText.length < 8 || 
-      ['candidate did not complete response', 'skip', 'skipped', 'no answer', 'idk', "i don't know", 'nothing', 'pass'].includes(cleanLower);
+      rawText.length < 5 || 
+      ['candidate did not complete response', 'skip', 'skipped', 'no answer', 'idk', "i don't know", 'nothing', 'pass', 'blank'].includes(cleanLower);
 
     if (isSilenceOrEmpty) {
+      incorrectCount++;
+      missingTopicSet.add(questionObj.subject);
+      (questionObj.expectedKeypoints || []).slice(0, 2).forEach(kp => missingTopicSet.add(kp));
+
       return {
         questionNumber: index + 1,
         question: questionObj.questionText,
-        userAnswer: rawText || '(Silence / No answer recorded)',
+        userAnswer: rawText || '(No answer provided)',
+        correctAnswer: questionObj.modelAnswer,
+        result: 'Incorrect',
+        explanation: questionObj.explanation,
+        feedback: `No substantive response or explanation was detected for this prompt. Review the correct answer and governing explanation below to master this concept. Tip: ${questionObj.improvementTip}`,
         score: 0,
-        feedback: 'No substantive response or explanation was detected. A score of 0 has been assigned. Review the benchmark model answer below to study the expected technical formulation.',
-        modelAnswer: questionObj.modelAnswer,
-        keypointsCovered: [],
-        keypointsMissing: questionObj.expectedKeypoints,
-        status: 'Unanswered'
+        department: questionObj.department,
+        subject: questionObj.subject
       };
     }
 
-    // 2. Answer was given - perform real evaluation against keypoints and keywords
-    totalAnsweredCount++;
-
+    // 2. Answer was given - perform semantic keyword and rubric analysis
     const words = cleanLower.split(/\W+/).filter(w => w.length > 2);
     const wordCount = words.length;
 
@@ -65,46 +85,61 @@ export function evaluateInterviewAnswers(type, submittedAnswers) {
     const coveredKeypoints = [];
     const missingKeypoints = [];
     (questionObj.expectedKeypoints || []).forEach(kp => {
-      // Split keypoint into distinct keywords
       const kpKeywords = kp.toLowerCase().split(/\W+/).filter(w => w.length > 4);
       const matchesInKp = kpKeywords.filter(k => cleanLower.includes(k));
       const kpCoverage = kpKeywords.length > 0 ? matchesInKp.length / kpKeywords.length : 0;
-      if (kpCoverage >= 0.35) {
+      if (kpCoverage >= 0.3) {
         coveredKeypoints.push(kp);
       } else {
         missingKeypoints.push(kp);
       }
     });
 
-    // Score calculation
-    // Base keyword coverage: up to 55 points
-    const keywordScore = Math.min(55, Math.round(keywordRatio * 55));
+    // Score calculation:
+    // Keyword coverage: up to 50 points
+    const keywordScore = Math.min(50, Math.round(keywordRatio * 50));
     
-    // Keypoints conceptual coverage: up to 30 points
+    // Keypoints conceptual coverage: up to 35 points
     const keypointScore = (questionObj.expectedKeypoints && questionObj.expectedKeypoints.length > 0)
-      ? Math.round((coveredKeypoints.length / questionObj.expectedKeypoints.length) * 30)
-      : 15;
+      ? Math.round((coveredKeypoints.length / questionObj.expectedKeypoints.length) * 35)
+      : 20;
 
     // Depth & elaboration score: up to 15 points
     let depthScore = 0;
-    if (wordCount >= 60) depthScore = 15;
-    else if (wordCount >= 35) depthScore = 11;
-    else if (wordCount >= 20) depthScore = 7;
-    else depthScore = 3;
+    if (wordCount >= 45) depthScore = 15;
+    else if (wordCount >= 25) depthScore = 10;
+    else if (wordCount >= 12) depthScore = 6;
+    else depthScore = 2;
 
-    // Combine raw score (min 15 if answered, max 96)
-    let questionScore = Math.max(15, Math.min(96, keywordScore + keypointScore + depthScore));
+    // Combine raw score (bounded 15 - 98)
+    let questionScore = Math.max(15, Math.min(98, keywordScore + keypointScore + depthScore));
 
-    // Feedback generation based on actual answers
-    let feedback = '';
-    if (questionScore >= 85) {
-      feedback = `Outstanding technical rigor! Covered ${coveredKeypoints.length} of ${questionObj.expectedKeypoints.length} key rubric concepts with domain-accurate keywords (${matchedKeywords.slice(0, 4).join(', ')}).`;
-    } else if (questionScore >= 70) {
-      feedback = `Good conceptual foundation. Successfully articulated ${coveredKeypoints.length} key points. To achieve a top score, elaborate on missing aspects such as ${missingKeywords.slice(0, 3).join(', ')}.`;
-    } else if (questionScore >= 45) {
-      feedback = `Partial answer detected. Addressed basic terminology but lacked necessary technical depth. Missing key foundational details: ${missingKeywords.slice(0, 3).join(', ')}.`;
+    // Classify into exact Result: Correct / Partially Correct / Incorrect
+    let result = 'Incorrect';
+    if (questionScore >= 75) {
+      result = 'Correct';
+      correctCount++;
+    } else if (questionScore >= 42) {
+      result = 'Partially Correct';
+      partiallyCorrectCount++;
+      missingKeywords.slice(0, 2).forEach(kw => missingTopicSet.add(kw));
     } else {
-      feedback = `Superficial or brief response. Only ${matchedKeywords.length} relevant technical terms were recognized. Compare with the benchmark model answer to see the comprehensive depth expected.`;
+      result = 'Incorrect';
+      incorrectCount++;
+      missingKeywords.slice(0, 3).forEach(kw => missingTopicSet.add(kw));
+      missingTopicSet.add(questionObj.subject);
+    }
+
+    // Specific constructive feedback on how user's answer can be improved
+    let feedback = '';
+    if (result === 'Correct') {
+      feedback = `Strong technical articulation! You accurately conveyed the core principles and integrated domain-specific concepts (${matchedKeywords.slice(0, 4).join(', ')}). To excel further: ${questionObj.improvementTip}`;
+    } else if (result === 'Partially Correct') {
+      const missingHint = missingKeywords.length > 0 ? `Key terminology omitted: ${missingKeywords.slice(0, 3).join(', ')}. ` : '';
+      feedback = `Good conceptual foundation, but your answer lacked full technical depth. ${missingHint}How to improve: ${questionObj.improvementTip}`;
+    } else {
+      const missingHint = missingKeywords.length > 0 ? `Essential terms not addressed: ${missingKeywords.slice(0, 4).join(', ')}. ` : '';
+      feedback = `Your answer was too brief or missed the primary governing mechanisms of this subject. ${missingHint}How to improve: ${questionObj.improvementTip}`;
     }
 
     totalScoreSum += questionScore;
@@ -113,12 +148,13 @@ export function evaluateInterviewAnswers(type, submittedAnswers) {
       questionNumber: index + 1,
       question: questionObj.questionText,
       userAnswer: rawText,
-      score: questionScore,
+      correctAnswer: questionObj.modelAnswer,
+      result, // 'Correct' | 'Partially Correct' | 'Incorrect'
+      explanation: questionObj.explanation,
       feedback,
-      modelAnswer: questionObj.modelAnswer,
-      keypointsCovered: coveredKeypoints,
-      keypointsMissing: missingKeypoints,
-      status: questionScore >= 70 ? 'Competency Demonstrated' : 'Needs Reinforcement'
+      score: questionScore,
+      department: questionObj.department,
+      subject: questionObj.subject
     };
   });
 
@@ -126,61 +162,46 @@ export function evaluateInterviewAnswers(type, submittedAnswers) {
   const totalQuestions = evaluatedTranscript.length || 1;
   const overallScore = Math.round(totalScoreSum / totalQuestions);
 
-  // If no answers were provided, everything is 0
-  const technicalKnowledge = totalAnsweredCount === 0 ? 0 : Math.min(96, Math.max(10, Math.round(overallScore * 1.02)));
-  const answerRelevance = totalAnsweredCount === 0 ? 0 : Math.min(96, Math.max(10, Math.round(overallScore * 0.98)));
-  const communication = totalAnsweredCount === 0 ? 0 : Math.min(96, Math.max(10, Math.round(overallScore * 0.95)));
-  const fluency = totalAnsweredCount === 0 ? 0 : Math.min(96, Math.max(10, Math.round(overallScore * 0.92)));
-  const completeness = totalAnsweredCount === 0 ? 0 : Math.round((totalAnsweredCount / totalQuestions) * 100);
-
-  // Strengths and Areas to Improve
-  const strengths = [];
-  const areasToImprove = [];
-
-  if (totalAnsweredCount === 0) {
-    strengths.push('Candidate attended and initiated the simulation session');
-    areasToImprove.push('Candidate did not provide verbal or written answers to the prompt questions');
-    areasToImprove.push('Must actively speak or type responses to demonstrate technical capabilities');
-    areasToImprove.push('Review the included model answers to understand key algorithmic principles');
+  // Performance feedback summary
+  let performanceFeedback = '';
+  if (overallScore >= 80) {
+    performanceFeedback = `Outstanding performance! You demonstrated rigorous domain knowledge across ${correctCount} of ${totalQuestions} questions with clear conceptual grasp and relevant terminology.`;
+  } else if (overallScore >= 60) {
+    performanceFeedback = `Solid foundational understanding demonstrated with ${correctCount} correct and ${partiallyCorrectCount} partially correct answers. Focus on expanding technical depth and incorporating precise analytical formulations.`;
+  } else if (overallScore >= 35) {
+    performanceFeedback = `Developing competency. Several key engineering principles were missing or left incomplete (${incorrectCount} incorrect/unanswered questions). Review the recommended topics and detailed model explanations.`;
   } else {
-    if (overallScore >= 75) {
-      strengths.push('Demonstrated solid command of core machine learning mathematical foundations');
-      strengths.push('Accurately utilized domain-specific technical terminology in multiple responses');
-    } else {
-      strengths.push('Attempted responses across technical categories');
-    }
-    if (completeness >= 80) {
-      strengths.push(`Completed ${totalAnsweredCount} of ${totalQuestions} evaluation questions within the allotted time`);
-    }
-
-    if (overallScore < 70) {
-      areasToImprove.push('Deepen mathematical derivations and loss function formulation details');
-      areasToImprove.push('Incorporate quantifiable performance metrics and real-world system constraints');
-    }
-    if (totalAnsweredCount < totalQuestions) {
-      areasToImprove.push(`Answered only ${totalAnsweredCount} out of ${totalQuestions} questions - complete all prompts for full credit`);
-    }
-    areasToImprove.push('Structure responses using the STAR format (Situation, Task, Action, Result) for behavioral prompts');
+    performanceFeedback = `Sub-threshold score. Most responses were missing or brief (${incorrectCount} of ${totalQuestions} questions incomplete). Study the benchmark model answers and retake this subject drill.`;
   }
 
-  let aiSummary = '';
-  if (totalAnsweredCount === 0) {
-    aiSummary = `Candidate initiated the ${type.toUpperCase()} interview simulation but did not deliver substantive answers for the prompts. Overall evaluation score is ${overallScore}/100. Review the detailed model answers for each question to prepare for re-examination.`;
-  } else if (overallScore >= 80) {
-    aiSummary = `Candidate completed ${totalAnsweredCount} of ${totalQuestions} questions in the ${type.toUpperCase()} interview simulation with strong overall performance (${overallScore}/100). Responses demonstrated domain knowledge, clear conceptual grounding, and accurate technical terminology.`;
-  } else if (overallScore >= 50) {
-    aiSummary = `Candidate completed ${totalAnsweredCount} of ${totalQuestions} questions in the ${type.toUpperCase()} simulation scoring ${overallScore}/100. Core concepts were partially addressed, but several architectural nuances and edge cases were omitted.`;
-  } else {
-    aiSummary = `Candidate scored ${overallScore}/100 across ${totalQuestions} questions. Responses lacked necessary technical depth or left key questions incomplete. Systematic review of foundational topics is recommended.`;
+  // Recommended topics for improvement
+  const recommendedTopics = Array.from(missingTopicSet).filter(t => t && t.length > 3).slice(0, 5);
+  if (recommendedTopics.length === 0) {
+    recommendedTopics.push('Advanced dynamic modeling', 'System boundary tradeoffs', 'Real-world industrial telemetry');
   }
+
+  // Sub-scores
+  const technicalKnowledge = Math.min(98, Math.max(0, Math.round(overallScore * 1.02)));
+  const answerRelevance = Math.min(98, Math.max(0, Math.round(overallScore * 0.98)));
+  const communication = Math.min(98, Math.max(0, Math.round(overallScore * 0.95)));
+  const fluency = Math.min(98, Math.max(0, Math.round(overallScore * 0.92)));
+  const completeness = Math.round(((correctCount + partiallyCorrectCount) / totalQuestions) * 100);
 
   return {
     id: `rpt_${Date.now()}`,
     date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-    role: 'AI / Machine Learning Engineer',
+    role: submittedAnswers[0]?.subject ? `${submittedAnswers[0].subject} Specialist` : 'Engineering Technical Assessment',
+    department: submittedAnswers[0]?.department || 'Engineering',
+    subject: submittedAnswers[0]?.subject || 'Core Engineering',
     interviewType: type,
     overallScore,
     durationMinutes,
+    totalQuestions,
+    correctCount,
+    partiallyCorrectCount,
+    incorrectCount,
+    performanceFeedback,
+    recommendedTopics,
     metrics: {
       technicalKnowledge,
       answerRelevance,
@@ -188,9 +209,6 @@ export function evaluateInterviewAnswers(type, submittedAnswers) {
       fluency,
       completeness
     },
-    strengths,
-    areasToImprove,
-    aiSummary,
     transcript: evaluatedTranscript
   };
 }
