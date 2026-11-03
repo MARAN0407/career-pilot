@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { GraduationCap, Sparkles, Lock, Mail, ArrowRight, UserCheck } from 'lucide-react';
+import { GraduationCap, Sparkles, Lock, Mail, ArrowRight, UserCheck, School } from 'lucide-react';
+import { DEPARTMENT_NAMES } from '../../constants/departments';
 
 export const StudentLoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState('ilamaran');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('password123');
+  const [department, setDepartment] = useState(DEPARTMENT_NAMES[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -16,7 +18,7 @@ export const StudentLoginPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await login('student', identifier, password);
+      await login('student', identifier, password, undefined, department);
       navigate('/student/dashboard');
     } catch (err) {
       console.error(err);
@@ -29,7 +31,7 @@ export const StudentLoginPage: React.FC = () => {
     setIdentifier(username);
     setIsSubmitting(true);
     try {
-      await login('student', username, 'demo1234');
+      await login('student', username, 'demo1234', undefined, department);
       navigate('/student/dashboard');
     } catch (err) {
       console.error(err);
@@ -69,6 +71,27 @@ export const StudentLoginPage: React.FC = () => {
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
               Tip: You can enter <strong>ilamaran</strong> or any custom name to sign in directly!
+            </p>
+          </div>
+
+          <div>
+            <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Academic Department
+            </label>
+            <div className="relative">
+              <School className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <select
+                value={department}
+                onChange={e => setDepartment(e.target.value)}
+                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3B82C4] focus:bg-white text-xs font-semibold text-slate-800 transition"
+              >
+                {DEPARTMENT_NAMES.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
+            <p className="text-[11px] text-teal-700 mt-1 font-medium">
+              Mock interview questions will be customized for this department.
             </p>
           </div>
 

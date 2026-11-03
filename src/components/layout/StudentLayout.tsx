@@ -48,38 +48,35 @@ export const StudentLayout: React.FC = () => {
 
   const navSections: NavSection[] = [
     {
-      title: 'CLASSROOM & LEARNING',
+      title: 'OVERVIEW',
       items: [
         { label: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
-        { label: 'My Classes', path: '/student/classes', icon: BookOpen },
-        { label: 'Assignments', path: '/student/assignments', icon: GraduationCap, badge: '1 Due' },
-        { label: 'Learning Hub', path: '/student/learning-hub', icon: Award },
       ]
     },
     {
-      title: 'CAREER INTELLIGENCE',
+      title: 'MOCK INTERVIEW & ASSESSMENT',
       items: [
-        { label: 'Resume AI (ATS)', path: '/student/resume-ai', icon: FileText, highlight: '86%' },
-        { label: 'Career Intelligence', path: '/student/career-intel', icon: Compass },
-        { label: 'Skill Gap Analysis', path: '/student/skill-gap', icon: Target },
-        { label: 'Job Matcher', path: '/student/jobs', icon: Briefcase, badge: '4 New' },
-        { label: 'Career Roadmap', path: '/student/roadmap', icon: Compass },
-      ]
-    },
-    {
-      title: 'AI ASSESSMENT & INTERVIEW',
-      items: [
-        { label: 'AI Interview Center', path: '/student/interview-center', icon: Video, isAi: true, highlight: 'Live' },
+        { label: 'AI Mock Interview Center', path: '/student/interview-center', icon: Video, isAi: true, highlight: 'Live' },
         { label: 'Scorecards & Radar', path: '/student/interview-results', icon: Target },
         { label: 'Interview History', path: '/student/interview-history', icon: Clock },
         { label: 'AI Career Assistant', path: '/student/ai-assistant', icon: MessageSquare, isAi: true },
       ]
     },
     {
-      title: 'ACCOUNT & SYSTEM',
+      title: 'RESUME & CAREER INTELLIGENCE',
+      items: [
+        { label: 'Resume AI (ATS)', path: '/student/resume-ai', icon: FileText, highlight: 'ATS' },
+        { label: 'Career Intelligence', path: '/student/career-intel', icon: Compass },
+        { label: 'Skill Gap Analysis', path: '/student/skill-gap', icon: Target },
+        { label: 'Job Matcher', path: '/student/jobs', icon: Briefcase, badge: 'Target' },
+        { label: 'Career Roadmap', path: '/student/roadmap', icon: Compass },
+      ]
+    },
+    {
+      title: 'ACCOUNT & PREFERENCES',
       items: [
         { label: 'Profile', path: '/student/profile', icon: User },
-        { label: 'Settings', path: '/student/settings', icon: Settings },
+        { label: 'Settings & Department', path: '/student/settings', icon: Settings },
       ]
     }
   ];

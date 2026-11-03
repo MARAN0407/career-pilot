@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { GraduationCap, Mail, Lock, User, School, ArrowRight } from 'lucide-react';
+import { DEPARTMENT_NAMES } from '../../constants/departments';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [department, setDepartment] = useState('Computer Science & AI');
+  const [department, setDepartment] = useState(DEPARTMENT_NAMES[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -89,12 +90,11 @@ export const RegisterPage: React.FC = () => {
               <select
                 value={department}
                 onChange={e => setDepartment(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3B82C4]"
+                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3B82C4] text-xs font-semibold text-slate-800"
               >
-                <option>Computer Science & AI</option>
-                <option>Data Systems Engineering</option>
-                <option>Information Technology</option>
-                <option>Electronics & Communication</option>
+                {DEPARTMENT_NAMES.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
               </select>
             </div>
           </div>

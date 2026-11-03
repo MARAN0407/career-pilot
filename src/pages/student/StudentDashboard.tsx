@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { classService } from '../../services/classService';
 import { careerService } from '../../services/careerService';
-import { Course, Assignment, CareerRole } from '../../types';
+import { CareerRole } from '../../types';
 import { MetricCard } from '../../components/common/MetricCard';
-import { ProgressBar } from '../../components/common/ProgressBar';
+import { getDepartmentByName } from '../../constants/departments';
 import {
   Briefcase,
   FileText,
   Video,
   TrendingUp,
   ArrowRight,
-  BookOpen,
-  Calendar,
   Sparkles,
   Award,
   ChevronRight,
-  PlayCircle
+  School,
+  CheckCircle2,
+  Mic,
+  ShieldCheck,
+  Target,
+  Zap,
+  Upload,
+  Cpu
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -36,13 +40,11 @@ import {
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [careerRoles, setCareerRoles] = useState<CareerRole[]>([]);
+  const currentDept = user?.department || 'Electronics & Communication Engineering (ECE)';
+  const deptMeta = getDepartmentByName(currentDept);
 
   useEffect(() => {
-    classService.getCourses().then(setCourses);
-    classService.getAssignments().then(setAssignments);
     careerService.getCareerRoles().then(setCareerRoles);
   }, []);
 
@@ -55,39 +57,47 @@ export const StudentDashboard: React.FC = () => {
   ];
 
   const skillBarData = [
-    { name: 'Python', score: 92 },
-    { name: 'Machine Learning', score: 86 },
-    { name: 'Deep Learning', score: 78 },
-    { name: 'SQL', score: 85 },
-    { name: 'NLP / RAG', score: 74 },
-    { name: 'Communication', score: 82 },
+    { name: deptMeta.shortCode === 'ECE' ? 'Embedded C' : 'Core Systems', score: 92 },
+    { name: deptMeta.shortCode === 'ECE' ? 'VLSI / Circuits' : 'Algorithms', score: 86 },
+    { name: deptMeta.shortCode === 'ECE' ? 'DSP / Signals' : 'Architecture', score: 78 },
+    { name: deptMeta.shortCode === 'ECE' ? 'Protocols (I2C/SPI)' : 'Databases', score: 85 },
+    { name: 'STAR HR / Leadership', score: 88 },
+    { name: 'Technical Composure', score: 82 },
   ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
-      {/* Welcome Banner */}
+      {/* Welcome & Department Focus Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-[#173B63] via-[#1E4D82] to-[#2F9C95] p-6 sm:p-8 rounded-2xl text-white shadow-lg relative overflow-hidden">
         <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
-        <div className="space-y-1.5 z-10">
+        <div className="space-y-2 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-teal-300">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI Career Readiness Active
+            <School className="w-3.5 h-3.5" />
+            <span>Academic Department: {currentDept}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Good Morning, {user.name} 👋
+            Welcome back, {user.name} 👋
           </h1>
           <p className="text-xs sm:text-sm text-slate-200 max-w-xl leading-relaxed">
-            Continue your academic learning and prepare for top AI & Machine Learning career placements.
+            Your AI career pilot is active. Prepare with department-specific technical mock interviews, ATS resume diagnostics, and placement readiness tracking.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 z-10">
+        <div className="flex flex-wrap items-center gap-3 z-10">
           <button
             onClick={() => navigate('/student/interview-center')}
             className="px-4 py-2.5 rounded-xl bg-white text-[#173B63] font-bold text-xs hover:bg-slate-100 transition shadow-md flex items-center gap-2 cursor-pointer"
           >
             <Video className="w-4 h-4 text-[#2F9C95]" />
-            <span>Practice Mock Interview</span>
+            <span>Start {deptMeta.shortCode} Mock Interview</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/student/resume-ai')}
+            className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs backdrop-blur-md transition flex items-center gap-2 cursor-pointer border border-white/20"
+          >
+            <FileText className="w-4 h-4 text-teal-300" />
+            <span>ATS Resume Score</span>
           </button>
         </div>
       </div>
@@ -96,8 +106,8 @@ export const StudentDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Career Readiness"
-          value="78%"
-          subtitle="Top 15th percentile in batch"
+          value="82%"
+          subtitle={`Calibrated for ${deptMeta.shortCode}`}
           icon={TrendingUp}
           trend={{ value: "+4% this month", isPositive: true }}
           accentColor="teal"
@@ -106,25 +116,25 @@ export const StudentDashboard: React.FC = () => {
         <MetricCard
           title="Resume Score"
           value="86%"
-          subtitle="ATS Verified for Tech Roles"
+          subtitle="ATS Verified for Department Roles"
           icon={FileText}
           trend={{ value: "Optimized", isPositive: true }}
           accentColor="blue"
           onClick={() => navigate('/student/resume-ai')}
         />
         <MetricCard
-          title="Interview Score"
-          value="82%"
-          subtitle="Latest Camera Assessment"
+          title="Interview Performance"
+          value="88%"
+          subtitle={`Latest ${deptMeta.shortCode} Technical Mock`}
           icon={Video}
-          trend={{ value: "+6 pts gain", isPositive: true }}
+          trend={{ value: "+8 pts gain", isPositive: true }}
           accentColor="indigo"
           onClick={() => navigate('/student/performance')}
         />
         <MetricCard
-          title="Skill Progress"
-          value="72%"
-          subtitle="Across 6 core benchmarks"
+          title="Domain Mastery"
+          value="79%"
+          subtitle="Across Department Core Rubrics"
           icon={Award}
           trend={{ value: "On Track", isPositive: true }}
           accentColor="navy"
@@ -132,115 +142,133 @@ export const StudentDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Continue Learning & Assignments Grid */}
+      {/* REPLACED SECTION: Department Mock Interview & Resume ATS Diagnostic Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Continue Learning (2 cols) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-[#173B63]">Continue Learning</h2>
-              <p className="text-xs text-slate-500">Pick up right where you left off</p>
+        {/* Department Mock Interview Suite (2 cols) */}
+        <div className="lg:col-span-2 academic-card p-6 flex flex-col justify-between space-y-5 border-t-4 border-t-[#2F9C95]">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Video className="w-5 h-5 text-[#2F9C95]" />
+                <h2 className="text-base font-bold text-[#173B63]">
+                  {deptMeta.name} Interview Suite
+                </h2>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0F766E] font-bold text-[11px] border border-teal-200">
+                Department Verified
+              </span>
             </div>
-            <button
-              onClick={() => navigate('/student/classes')}
-              className="text-xs text-[#3B82C4] hover:text-[#173B63] font-semibold flex items-center gap-1"
-            >
-              <span>View All Classes</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Real-time AI mock interviews specifically customized with technical engineering questions for <strong>{currentDept}</strong>. Practice speaking equations, protocols, system architecture, and STAR leadership answers.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {courses.slice(0, 2).map(course => (
-              <div
-                key={course.id}
-                className="academic-card p-5 flex flex-col justify-between space-y-4 academic-card-hover"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-600 font-mono mb-2">
-                    <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-900 font-bold border border-slate-300">
-                      {course.code}
-                    </span>
-                    <span className="font-semibold text-slate-700">Last accessed {course.lastActivity}</span>
-                  </div>
-                  <h3 className="font-bold text-sm text-[#173B63] line-clamp-1">{course.title}</h3>
-                  <p className="text-xs text-slate-700 font-medium mt-0.5">Faculty: {course.tutorName}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <ProgressBar value={course.progress} label="Course Progress" size="sm" color="blue" />
-
-                  <button
-                    onClick={() => navigate(`/student/classes/${course.id}`)}
-                    className="w-full py-2 rounded-lg bg-[#173B63] hover:bg-[#204B7D] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs"
-                  >
-                    <PlayCircle className="w-4 h-4 text-teal-300" />
-                    <span>Continue Learning →</span>
-                  </button>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-[#173B63]" />
+                <h4 className="font-bold text-xs text-slate-800">Technical Domain Round</h4>
               </div>
-            ))}
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Deep-dive into {deptMeta.shortCode} fundamentals, circuit/code analysis, and design tradeoffs.
+              </p>
+              <button
+                onClick={() => navigate('/student/interview-center')}
+                className="w-full mt-1 py-2 bg-[#173B63] hover:bg-[#204B7D] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <span>Start Technical Mock</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-[#7567C7]" />
+                <h4 className="font-bold text-xs text-slate-800">HR & STAR Leadership Round</h4>
+              </div>
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Behavioral interview questions assessing project conflict resolution, failure recovery, and teamwork.
+              </p>
+              <button
+                onClick={() => navigate('/student/interview-center')}
+                className="w-full mt-1 py-2 bg-[#7567C7] hover:bg-[#6456b8] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <span>Start HR / STAR Mock</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Silence detection (0 marks for blank answers) & model answer comparisons active</span>
+            </span>
+            <button
+              onClick={() => navigate('/student/interview-history')}
+              className="text-[#3B82C4] font-bold hover:underline"
+            >
+              Past Sessions →
+            </button>
           </div>
         </div>
 
-        {/* Upcoming Assignments */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-[#173B63]">Upcoming Assignments</h2>
-            <button
-              onClick={() => navigate('/student/assignments')}
-              className="text-xs text-[#1D4ED8] font-bold hover:underline"
-            >
-              All Assignments →
-            </button>
+        {/* Resume ATS & Readiness Card (1 col) */}
+        <div className="academic-card p-6 flex flex-col justify-between space-y-4 border-t-4 border-t-[#3B82C4]">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#3B82C4]" />
+                <h2 className="text-base font-bold text-[#173B63]">ATS Resume Analyzer</h2>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200">
+                86% Score
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Automatic validation ensures your uploaded document is an authentic resume before computing keyword match rates for {deptMeta.shortCode} roles.
+            </p>
           </div>
 
-          <div className="academic-card p-4 divide-y divide-slate-200 space-y-3">
-            {assignments.slice(0, 3).map(asg => (
-              <div key={asg.id} className="pt-3 first:pt-0 space-y-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-900 line-clamp-1">{asg.title}</span>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 border ${
-                      asg.status === 'graded'
-                        ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
-                        : asg.status === 'in_progress'
-                        ? 'bg-amber-50 text-amber-900 border-amber-300'
-                        : 'bg-slate-100 text-slate-800 border-slate-300'
-                    }`}
-                  >
-                    {asg.status === 'graded'
-                      ? `Graded (${asg.obtainedMarks}/${asg.totalMarks})`
-                      : asg.status === 'in_progress'
-                      ? 'In Progress'
-                      : 'Not Started'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-700 font-medium">
-                  <span>{asg.courseTitle.split('&')[0]}</span>
-                  <span className="flex items-center gap-1 text-slate-800 font-bold">
-                    <Calendar className="w-3.5 h-3.5 text-slate-600" />
-                    {new Date(asg.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
+          <div className="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+            <div className="flex items-center justify-between font-semibold text-slate-700 text-[11px]">
+              <span>Department Keyword Density</span>
+              <span className="text-emerald-700 font-bold">Strong (14 matches)</span>
+            </div>
+            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+              <div className="bg-emerald-500 h-full rounded-full" style={{ width: '86%' }} />
+            </div>
+            <p className="text-[10px] text-slate-500">
+              Validated against Tier-1 campus hiring ATS algorithms.
+            </p>
           </div>
+
+          <button
+            onClick={() => navigate('/student/resume-ai')}
+            className="w-full py-2.5 rounded-xl bg-[#3B82C4] hover:bg-[#2e6ea9] text-white font-bold text-xs transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Upload & Re-Scan Resume</span>
+          </button>
         </div>
       </div>
 
-      {/* Career Recommendations Section */}
+      {/* Department Career Pathways Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-[#173B63]">AI Career Recommendations</h2>
-            <p className="text-xs text-slate-700 font-medium">Tailored roles based on your coursework and mock interview scores</p>
+            <h2 className="text-base font-bold text-[#173B63]">
+              Target Career Pathways for {deptMeta.shortCode}
+            </h2>
+            <p className="text-xs text-slate-600 font-medium">
+              Roles aligned with your academic department curriculum and mock interview metrics
+            </p>
           </div>
           <button
             onClick={() => navigate('/student/career-intel')}
-            className="text-xs text-[#6D28D9] hover:text-[#5d50ae] font-bold flex items-center gap-1"
+            className="text-xs text-[#6D28D9] hover:text-[#5d50ae] font-bold flex items-center gap-1 cursor-pointer"
           >
-            <span>Explore All Careers</span>
+            <span>Explore All Career Paths</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -277,7 +305,7 @@ export const StudentDashboard: React.FC = () => {
 
                 <button
                   onClick={() => navigate('/student/career-intel')}
-                  className="w-full py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#173B63] text-xs font-bold border border-blue-200 transition"
+                  className="w-full py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#173B63] text-xs font-bold border border-blue-200 transition cursor-pointer"
                 >
                   View Career Pathway ({role.salaryRange}) →
                 </button>
@@ -293,7 +321,7 @@ export const StudentDashboard: React.FC = () => {
         <div className="academic-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-[#173B63]">Skill Mastery Progress</h3>
+              <h3 className="text-sm font-bold text-[#173B63]">Department Skill Mastery</h3>
               <p className="text-xs text-slate-500">Benchmark comparison vs Industry expectations</p>
             </div>
             <span className="text-xs font-semibold text-[#2F9C95] bg-teal-50 px-2 py-1 rounded">
@@ -305,7 +333,7 @@ export const StudentDashboard: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={skillBarData} layout="vertical" margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={90} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={110} />
                 <Tooltip />
                 <Bar dataKey="score" fill="#3B82C4" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -322,7 +350,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
             <button
               onClick={() => navigate('/student/performance')}
-              className="text-xs text-[#3B82C4] font-semibold hover:underline"
+              className="text-xs text-[#3B82C4] font-semibold hover:underline cursor-pointer"
             >
               Full Scorecard
             </button>

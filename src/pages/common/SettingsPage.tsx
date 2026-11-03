@@ -19,9 +19,10 @@ import {
   LogOut,
   AlertCircle
 } from 'lucide-react';
+import { DEPARTMENT_NAMES } from '../../constants/departments';
 
 export const SettingsPage: React.FC = () => {
-  const { user, role } = useAuth();
+  const { user, role, updateUser } = useAuth();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<'personal' | 'security' | 'notifications' | 'privacy'>('personal');
@@ -32,8 +33,8 @@ export const SettingsPage: React.FC = () => {
   const [phone, setPhone] = useState('+91 98450 22341');
   const [dob, setDob] = useState('2003-08-14');
   const [gender, setGender] = useState('Male');
-  const [department, setDepartment] = useState(user.department || 'Computer Science & AI');
-  const [registerNo, setRegisterNo] = useState(user.registerNumber || 'CS2023-8842');
+  const [department, setDepartment] = useState(user.department || DEPARTMENT_NAMES[0]);
+  const [registerNo, setRegisterNo] = useState(user.registerNumber || '20240982');
 
   // Security Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -52,10 +53,17 @@ export const SettingsPage: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    try {
+      if (updateUser) {
+        await updateUser({ name, email, department, registerNumber: registerNo });
+      }
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -254,13 +262,19 @@ export const SettingsPage: React.FC = () => {
                   <label className="block font-semibold text-slate-700 mb-1">Academic Department & Faculty</label>
                   <div className="relative">
                     <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
+                    <select
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#3B82C4]"
-                    />
+                      className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-[#3B82C4]"
+                    >
+                      {DEPARTMENT_NAMES.map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
                   </div>
+                  <p className="text-[11px] text-teal-700 mt-1">
+                    Your mock interview questions and rubrics will dynamically align with this department.
+                  </p>
                 </div>
               </div>
             </div>

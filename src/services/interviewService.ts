@@ -12,10 +12,12 @@ export const interviewService = {
   async getQuestions(
     type: InterviewType = 'camera', 
     category?: string, 
-    count: number = 5
+    count: number = 5,
+    department?: string
   ): Promise<InterviewQuestion[]> {
     try {
       const queryParams = new URLSearchParams();
+      if (department && department !== 'All') queryParams.append('department', department);
       if (category && category !== 'All') queryParams.append('category', category);
       if (count) queryParams.append('count', count.toString());
 
@@ -32,6 +34,50 @@ export const interviewService = {
 
     // Comprehensive Fallback Pool of diverse questions
     const fallbackPool: InterviewQuestion[] = [
+      {
+        id: 'q_ece_01',
+        questionNumber: 1,
+        totalQuestions: 5,
+        role: 'Electronics & Embedded Engineer',
+        difficulty: 'Intermediate',
+        category: 'Embedded Systems & Microcontrollers',
+        questionText: 'What is an Interrupt Service Routine (ISR)? Explain interrupt latency and why blocking calls or dynamic memory allocation must be avoided inside an ISR.',
+        expectedKeypoints: [
+          'An ISR is an event-driven callback function executed by CPU upon peripheral interrupt assertion',
+          'Interrupt latency is the duration between the hardware interrupt and the execution of the first ISR instruction',
+          'Blocking calls lock the CPU, preventing higher priority interrupts from being serviced',
+          'Dynamic memory allocation (malloc/free) is non-deterministic and can cause heap fragmentation and latency spikes'
+        ]
+      },
+      {
+        id: 'q_ece_02',
+        questionNumber: 2,
+        totalQuestions: 5,
+        role: 'VLSI & Circuit Design Engineer',
+        difficulty: 'Advanced',
+        category: 'VLSI & Digital Circuit Design',
+        questionText: 'Explain Setup Time and Hold Time in sequential digital circuits. What is metastability, and how are timing violations resolved?',
+        expectedKeypoints: [
+          'Setup time is the minimum duration data must be stable before the active clock edge',
+          'Hold time is the minimum duration data must remain stable after the active clock edge',
+          'Metastability is an indeterminate logic state occurring when setup or hold times are violated',
+          'Setup violations are fixed by optimizing combinational paths; hold violations are fixed by inserting delay buffers'
+        ]
+      },
+      {
+        id: 'q_ece_03',
+        questionNumber: 3,
+        totalQuestions: 5,
+        role: 'Wireless Communications Engineer',
+        difficulty: 'Advanced',
+        category: 'Wireless Communications & 5G',
+        questionText: 'How does Orthogonal Frequency Division Multiplexing (OFDM) eliminate Intersymbol Interference (ISI) in wireless multipath channels? Why is a Cyclic Prefix required?',
+        expectedKeypoints: [
+          'OFDM divides wideband channels into multiple orthogonal parallel narrowband subcarriers',
+          'Symbol duration is prolonged far beyond channel delay spread',
+          'Cyclic Prefix duplicates symbol tail at the beginning, eliminating multipath ISI and enabling single-tap frequency domain equalization'
+        ]
+      },
       {
         id: 'q_ml_01',
         questionNumber: 1,

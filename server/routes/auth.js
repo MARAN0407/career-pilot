@@ -99,7 +99,7 @@ router.post('/register', (req, res) => {
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
-  const { email, username, password, role } = req.body;
+  const { email, username, password, role, department } = req.body;
   const loginIdentifier = (email || username || '').trim();
 
   if (!loginIdentifier) {
@@ -117,7 +117,6 @@ router.post('/login', (req, res) => {
   );
 
   // If user does not exist, auto-provision dynamically with their provided username/name!
-  // This guarantees that ANY login (e.g. "ilamaran", "ilamaran@college.edu", etc.) works and shows their name properly!
   if (!matchedUser) {
     const displayName = formatDisplayName(loginIdentifier);
     const generatedEmail = loginIdentifier.includes('@') ? loginIdentifier : `${loginIdentifier.toLowerCase().replace(/\s+/g, '')}@college.edu`;
@@ -126,21 +125,30 @@ router.post('/login', (req, res) => {
       id: `usr_${Date.now()}`,
       name: displayName,
       email: generatedEmail,
-      role: role || (lowerIdent.includes('tutor') || lowerIdent.includes('prof') ? 'tutor' : 'student'),
+      role: 'student',
       avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=173b63,2f9c95,7567c7`,
-      department: 'Computer Science & AI',
+      department: department || 'Electronics & Communication Engineering (ECE)',
       institution: 'Apex Institute of Technology & Sciences',
       registerNumber: `2024${Math.floor(1000 + Math.random() * 9000)}`,
       semester: '6th Semester',
-      gpa: 3.85,
-      title: (role === 'tutor' || lowerIdent.includes('tutor')) ? 'Associate Professor & Research Chair' : undefined
+      gpa: 3.85
     };
 
     users.push(matchedUser);
     writeUsers(users);
-  } else if (role && matchedUser.role !== role) {
-    matchedUser.role = role;
-    writeUsers(users);
+  } else {
+    let updated = false;
+    if (department && matchedUser.department !== department) {
+      matchedUser.department = department;
+      updated = true;
+    }
+    if (role && matchedUser.role !== role) {
+      matchedUser.role = role;
+      updated = true;
+    }
+    if (updated) {
+      writeUsers(users);
+    }
   }
 
   currentSessionUser = matchedUser;

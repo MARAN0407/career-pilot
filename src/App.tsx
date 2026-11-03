@@ -15,27 +15,15 @@ import { RegisterPage } from './pages/public/RegisterPage';
 
 // Student Pages
 import { StudentDashboard } from './pages/student/StudentDashboard';
-import { MyClassesPage } from './pages/student/MyClassesPage';
-import { ClassDetailPage } from './pages/student/ClassDetailPage';
-import { AssignmentsPage } from './pages/student/AssignmentsPage';
 import { ResumeAiPage } from './pages/student/ResumeAiPage';
 import { CareerIntelligencePage } from './pages/student/CareerIntelligencePage';
 import { SkillGapPage } from './pages/student/SkillGapPage';
 import { JobMatcherPage } from './pages/student/JobMatcherPage';
-import { LearningHubPage } from './pages/student/LearningHubPage';
 import { CareerRoadmapPage } from './pages/student/CareerRoadmapPage';
 import { InterviewCenterPage } from './pages/student/InterviewCenterPage';
 import { InterviewResultsPage } from './pages/student/InterviewResultsPage';
 import { InterviewHistoryPage } from './pages/student/InterviewHistoryPage';
 import { AiCareerAssistantPage } from './pages/student/AiCareerAssistantPage';
-
-// Tutor Pages
-import { TutorDashboard } from './pages/tutor/TutorDashboard';
-import { TutorClassroomPage } from './pages/tutor/TutorClassroomPage';
-import { TutorAssignmentsPage } from './pages/tutor/TutorAssignmentsPage';
-import { TutorStudentsPage } from './pages/tutor/TutorStudentsPage';
-import { TutorAnalyticsPage } from './pages/tutor/TutorAnalyticsPage';
-import { TutorKnowledgeBasePage } from './pages/tutor/TutorKnowledgeBasePage';
 
 // Shared Editable Profile & Comprehensive Settings
 import { LinkedInProfilePage } from './pages/common/LinkedInProfilePage';
@@ -54,19 +42,14 @@ export function App() {
             <Route path="/login/tutor" element={<Navigate to="/login/student" replace />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Student Portal */}
+            {/* Student Career & Mock Interview Portal */}
             <Route path="/student" element={<StudentLayout />}>
               <Route index element={<Navigate to="/student/dashboard" replace />} />
               <Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="classes" element={<MyClassesPage />} />
-              <Route path="classes/:courseId" element={<ClassDetailPage />} />
-              <Route path="materials" element={<MyClassesPage />} />
-              <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="resume-ai" element={<ResumeAiPage />} />
               <Route path="career-intel" element={<CareerIntelligencePage />} />
               <Route path="skill-gap" element={<SkillGapPage />} />
               <Route path="jobs" element={<JobMatcherPage />} />
-              <Route path="learning-hub" element={<LearningHubPage />} />
               <Route path="roadmap" element={<CareerRoadmapPage />} />
               <Route path="interview-center" element={<InterviewCenterPage />} />
               <Route path="interview-results" element={<InterviewResultsPage />} />
@@ -75,6 +58,13 @@ export function App() {
               <Route path="ai-assistant" element={<AiCareerAssistantPage />} />
               <Route path="profile" element={<LinkedInProfilePage />} />
               <Route path="settings" element={<SettingsPage />} />
+
+              {/* Redirect removed tutor/class routes */}
+              <Route path="classes" element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="classes/:courseId" element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="materials" element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="assignments" element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="learning-hub" element={<Navigate to="/student/dashboard" replace />} />
             </Route>
 
             {/* Redirect legacy tutor paths to student dashboard */}

@@ -1,13 +1,203 @@
-// Expansive benchmark questions bank, rubrics, and comprehensive benchmark model answers for interview evaluation
+// Comprehensive benchmark question bank categorized by Academic Department & Professional Engineering Tracks
+// Includes technical rubrics, essential domain keywords, and full model answers for accredited AI evaluation
 
 export const interviewQuestions = [
-  // ==========================================
-  // 1. AI & MACHINE LEARNING
-  // ==========================================
+  // =========================================================================
+  // 1. ELECTRONICS & COMMUNICATION ENGINEERING (ECE)
+  // =========================================================================
   {
-    id: 'q_ml_01',
+    id: 'q_ece_01',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'Electronics & Embedded Systems Engineer',
+    category: 'Embedded Systems & Microcontrollers',
+    difficulty: 'Intermediate',
+    questionText: 'What is an Interrupt Service Routine (ISR)? Explain interrupt latency, and describe why blocking calls or dynamic memory allocation must be avoided inside an ISR.',
+    expectedKeypoints: [
+      'An ISR is an event-driven callback function invoked immediately by hardware when an interrupt signal triggers',
+      'Interrupt latency is the duration between the hardware interrupt signal being asserted and the execution of the first ISR instruction',
+      'Blocking calls (sleep, delay, waiting on semaphores) lock the CPU, preventing higher/same priority interrupts from being serviced',
+      'Dynamic memory allocation (malloc/free) is non-deterministic and can cause heap fragmentation, deadlocks, and severe latency spikes in real-time execution'
+    ],
+    requiredKeywords: ['isr', 'interrupt', 'latency', 'hardware', 'blocking', 'malloc', 'non-deterministic', 'heap', 'real-time', 'context switch'],
+    modelAnswer: 'An Interrupt Service Routine (ISR) is a specialized routine executed by the CPU upon receiving an asynchronous hardware interrupt, pausing normal thread execution to handle high-priority events. Interrupt latency refers to the elapsed time from hardware assertion to the execution of the first instruction in the ISR, consisting of pipeline flushing, register context saving, and vector fetching. Blocking operations (such as delay, busy waiting, or mutex locks) must never be used inside an ISR because they stall the processor and cause deadline misses for other peripheral interrupts. Dynamic memory allocation (like malloc) is non-reentrant, non-deterministic in execution time, and can lead to heap corruption or fragmentation in memory-constrained microcontrollers.'
+  },
+  {
+    id: 'q_ece_02',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'VLSI & Digital Circuit Engineer',
+    category: 'VLSI & Digital Circuit Design',
+    difficulty: 'Advanced',
+    questionText: 'Explain Setup Time and Hold Time in sequential digital circuits. What is metastability, and how do designers resolve Setup and Hold time violations during Static Timing Analysis (STA)?',
+    expectedKeypoints: [
+      'Setup time (T_setup) is the minimum time data must be stable BEFORE the active clock edge',
+      'Hold time (T_hold) is the minimum time data must remain stable AFTER the active clock edge',
+      'Metastability is an indeterminate logic state occurring when setup or hold times are violated, causing output to oscillate or settle unpredictably',
+      'Setup violations are fixed by reducing combinational delay, sizing up driver gates, or lowering clock frequency',
+      'Hold violations are independent of clock frequency and are fixed by inserting buffer delay chains in data paths'
+    ],
+    requiredKeywords: ['setup time', 'hold time', 'metastability', 'flip-flop', 'clock edge', 'static timing analysis', 'sta', 'buffer', 'combinational delay'],
+    modelAnswer: 'In digital flip-flops, Setup Time (T_setup) is the minimum duration the data input must remain valid and stable before the arrival of the active clock edge. Hold Time (T_hold) is the duration data must remain stable after the clock edge. Violating either condition can trap internal bistable latches in an indeterminate state called Metastability, where the output voltage oscillates between VDD and GND for an unpredictable period before resolving. Setup violations occur when the combinational path is too slow (T_launch + T_comb + T_setup > T_period + T_capture); they are fixed by optimizing logic, upsizing gates, or reducing the clock frequency. Hold violations occur when data changes too quickly before the hold window closes (T_launch + T_min < T_hold + T_skew); they are frequency-independent and fixed by inserting delay buffers on the data path.'
+  },
+  {
+    id: 'q_ece_03',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'Wireless & RF Communications Engineer',
+    category: 'Wireless Communications & 5G',
+    difficulty: 'Advanced',
+    questionText: 'How does Orthogonal Frequency Division Multiplexing (OFDM) eliminate Intersymbol Interference (ISI) in multipath wireless channels? Why is a Cyclic Prefix (CP) necessary?',
+    expectedKeypoints: [
+      'OFDM splits a high-rate serial data stream into multiple orthogonal low-rate parallel narrowband subcarriers',
+      'Each subcarrier has a longer symbol duration, significantly exceeding channel delay spread',
+      'A Cyclic Prefix copies the end of the OFDM symbol to the beginning, acting as a guard interval against multipath delay',
+      'The Cyclic Prefix converts linear channel convolution into circular convolution, enabling simple frequency-domain equalization via single-tap multipliers'
+    ],
+    requiredKeywords: ['ofdm', 'isi', 'intersymbol interference', 'orthogonal', 'subcarrier', 'cyclic prefix', 'multipath', 'delay spread', 'circular convolution', 'fft'],
+    modelAnswer: 'OFDM divides a wideband frequency-selective fading channel into many narrow, orthogonal, flat-fading subcarriers. By transmitting symbols in parallel across these subcarriers, the symbol period is elongated to be much greater than the channel delay spread, dramatically attenuating Intersymbol Interference (ISI). To completely eliminate residual ISI caused by multipath echoes, a Cyclic Prefix (CP) is inserted as a guard interval. The CP duplicates the tail portion of the time-domain symbol at the front. Beyond preventing adjacent symbol overlap, it transforms linear channel convolution into circular convolution, allowing the receiver to use an FFT followed by simple single-tap frequency-domain equalizers to restore the transmitted signal.'
+  },
+  {
+    id: 'q_ece_04',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'Digital Signal Processing Engineer',
+    category: 'Digital Signal Processing (DSP)',
+    difficulty: 'Intermediate',
+    questionText: 'Compare Finite Impulse Response (FIR) and Infinite Impulse Response (IIR) digital filters. Discuss linear phase response, stability, and computational complexity.',
+    expectedKeypoints: [
+      'FIR filters have no feedback (all-zero system) and are inherently unconditionally stable',
+      'IIR filters use feedback (poles and zeros) and can become unstable if poles lie outside the unit circle in the Z-plane',
+      'FIR filters can easily achieve strictly linear phase, preventing phase distortion across frequency bands',
+      'IIR filters achieve sharper cutoff roll-offs with significantly fewer coefficients/lower order than FIR filters, saving memory and CPU cycles',
+      'FIR filters require higher order (more taps and multipliers) to achieve steep transition bands'
+    ],
+    requiredKeywords: ['fir', 'iir', 'linear phase', 'stability', 'poles', 'zeros', 'feedback', 'unit circle', 'taps', 'filter order'],
+    modelAnswer: 'FIR (Finite Impulse Response) filters rely purely on feedforward tapped delay lines with no recursive feedback. Because they have only zeros, FIR filters are unconditionally stable and can be designed with exact linear phase (symmetric coefficients), preserving pulse shapes without group delay distortion. However, they require higher filter orders (many taps) to achieve sharp cutoff characteristics. In contrast, IIR (Infinite Impulse Response) filters utilize feedback loops containing both poles and zeros. This allows IIR filters to achieve steep roll-off slopes with far fewer coefficients, drastically reducing computational overhead. However, IIR filters have non-linear phase response and risk instability if round-off quantization moves poles outside the unit circle in the Z-plane.'
+  },
+  {
+    id: 'q_ece_05',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'Embedded Hardware Protocols Engineer',
+    category: 'Embedded Protocols & Hardware Interfaces',
+    difficulty: 'Intermediate',
+    questionText: 'Compare I2C, SPI, and UART serial communication protocols in terms of pin count, transmission speed, multi-master capability, and synchronous vs asynchronous clocking.',
+    expectedKeypoints: [
+      'I2C is a 2-wire synchronous protocol (SDA, SCL) with open-drain pull-ups, supporting multi-master arbitration and hardware addressing',
+      'SPI is a 4-wire synchronous protocol (MOSI, MISO, SCK, CS/SS) operating in full-duplex with push-pull outputs and high speeds (10-50+ MHz)',
+      'UART is an asynchronous 2-wire protocol (TX, RX) requiring predefined matching baud rates, start/stop bits, and no shared clock line',
+      'SPI offers the highest throughput but requires dedicated Chip Select lines per slave',
+      'I2C is pin-efficient for many devices on a single bus but slower (100 kHz - 3.4 MHz)'
+    ],
+    requiredKeywords: ['i2c', 'spi', 'uart', 'synchronous', 'asynchronous', 'baud rate', 'clock', 'chip select', 'open-drain', 'pull-up', 'full-duplex'],
+    modelAnswer: 'I2C, SPI, and UART differ substantially in architecture. I2C is a synchronous, half-duplex 2-wire bus (SDA for data, SCL for clock) utilizing open-drain outputs with pull-up resistors; it supports multi-master topologies and addressing up to 127 devices, operating at standard speeds from 100 kHz to 3.4 MHz. SPI is a synchronous, full-duplex 4-wire interface (MOSI, MISO, SCK, CS); it achieves much higher speeds (often 20-50+ MHz) with simple shift registers, but requires a separate Chip Select line for each peripheral, increasing PCB routing. UART is an asynchronous, point-to-point 2-wire protocol (TX, RX) requiring no clock wire; instead, both ends must agree on matching baud rates, data framing, and start/stop/parity bits, making it best for direct terminal debug and GPS/modem links.'
+  },
+  {
+    id: 'q_ece_06',
+    department: 'ECE',
+    departmentName: 'Electronics & Communication Engineering',
+    role: 'Analog & RF Circuit Design Engineer',
+    category: 'Analog & Circuit Design',
+    difficulty: 'Intermediate',
+    questionText: 'What is Common Mode Rejection Ratio (CMRR) in Operational Amplifiers? Why is high CMRR critical when amplifying bio-signals or sensor outputs in noisy environments?',
+    expectedKeypoints: [
+      'CMRR is the ratio of differential-mode gain (A_d) to common-mode gain (A_cm), typically expressed in decibels (dB)',
+      'Differential signals represent the desired measurement between two inputs, while common-mode noise affects both lines equally (e.g. 50/60 Hz mains hum)',
+      'High CMRR ensures the op-amp rejects electromagnetic interference and ground noise, amplifying only the minuscule sensor potential',
+      'Instrumentation amplifiers use 3-op-amp topologies with laser-trimmed resistors to achieve CMRR > 100 dB'
+    ],
+    requiredKeywords: ['cmrr', 'op-amp', 'differential gain', 'common mode', 'noise', 'rejection', 'interference', 'instrumentation amplifier', 'decibels'],
+    modelAnswer: 'Common Mode Rejection Ratio (CMRR) quantifies an operational amplifier ability to amplify the desired differential voltage between its inverting and non-inverting terminals while rejecting unwanted signals common to both inputs: CMRR = 20 * log10(|A_d / A_cm|). In real-world sensor interfaces (such as strain gauges, thermocouples, and ECG electrodes), long lead wires pick up substantial common-mode electromagnetic interference (like 50/60 Hz power grid hum and RF noise) that may be thousands of times larger than the microvolt bio-signal. A high CMRR (e.g., > 100 dB) is vital to attenuate common-mode noise to negligible levels, ensuring clean signal extraction and high Signal-to-Noise Ratio (SNR).'
+  },
+
+  // =========================================================================
+  // 2. COMPUTER SCIENCE & ENGINEERING (CSE) & INFORMATION TECHNOLOGY (IT)
+  // =========================================================================
+  {
+    id: 'q_cse_01',
+    department: 'CSE',
+    departmentName: 'Computer Science & Engineering',
+    role: 'Software Development Engineer (SDE)',
+    category: 'Operating Systems & Concurrency',
+    difficulty: 'Intermediate',
+    questionText: 'What are the four Coffman conditions necessary for a Deadlock to occur in an operating system? How can an OS detect, prevent, or recover from deadlocks?',
+    expectedKeypoints: [
+      '1. Mutual Exclusion: At least one resource is held in non-shareable mode',
+      '2. Hold and Wait: A process holds resources while requesting additional locked resources',
+      '3. No Preemption: Resources cannot be forcibly taken from a process holding them',
+      '4. Circular Wait: A closed chain of processes exists where each waits for a resource held by the next',
+      'Prevention breaks one of the four conditions (e.g., total resource ordering to eliminate circular wait)',
+      'Banker Algorithm is used for deadlock avoidance using safe state matrices',
+      'Detection uses Resource Allocation Graphs (RAG) and recovers via process termination or preemption'
+    ],
+    requiredKeywords: ['deadlock', 'coffman', 'mutual exclusion', 'hold and wait', 'no preemption', 'circular wait', 'resource allocation graph', 'banker algorithm'],
+    modelAnswer: 'A deadlock occurs when processes are blocked permanently waiting for resources held by one another. The four necessary Coffman conditions are: 1) Mutual Exclusion (resources cannot be shared concurrently); 2) Hold and Wait (processes hold existing allocations while requesting new ones); 3) No Preemption (resources can only be released voluntarily); 4) Circular Wait (a circular dependency chain of processes and requests exists). To prevent deadlocks, system designers invalidate at least one condition—most commonly eliminating Circular Wait by enforcing a strict global ordering on resource acquisition. For avoidance, the Banker Algorithm verifies that resource requests keep the system in a provably safe state. Detection algorithms inspect Resource Allocation Graphs for cycles, and recovery involves terminating deadlocked threads or preempting resources.'
+  },
+  {
+    id: 'q_cse_02',
+    department: 'CSE',
+    departmentName: 'Computer Science & Engineering',
+    role: 'Backend & Distributed Systems Engineer',
+    category: 'Computer Networks & Protocols',
+    difficulty: 'Intermediate',
+    questionText: 'Explain the TCP 3-way handshake and 4-way termination process. Why is the TIME_WAIT state necessary at the end of a TCP connection?',
+    expectedKeypoints: [
+      'Handshake: SYN (client to server) -> SYN-ACK (server to client) -> ACK (client to server) establishing sequence numbers',
+      'Termination: FIN -> ACK -> FIN -> ACK closing both unidirectional transmission channels',
+      'TIME_WAIT state lasts for 2 * MSL (Maximum Segment Lifetime)',
+      'Prevents delayed duplicate segments from an old connection from interfering with a new socket reuse',
+      'Ensures the final ACK is acknowledged so the peer does not retransmit the FIN'
+    ],
+    requiredKeywords: ['tcp', 'handshake', 'syn', 'ack', 'fin', '3-way', 'time_wait', 'msl', 'sequence number', 'termination'],
+    modelAnswer: 'The TCP three-way handshake establishes a reliable, bidirectional connection: 1) Client sends SYN with an initial sequence number (ISN); 2) Server responds with SYN-ACK, acknowledging client ISN and providing its own; 3) Client sends ACK. Connection teardown requires four steps because TCP is full-duplex: Client sends FIN, Server replies with ACK; Server subsequently sends its own FIN, and Client replies with final ACK. The client then enters the TIME_WAIT state, lingering for 2 * MSL (typically 1 to 2 minutes). TIME_WAIT is essential for two reasons: first, to ensure the final ACK reached the server (if lost, the server will retransmit FIN, which the client can still acknowledge); second, to allow any delayed, lingering packets in the network to expire so they cannot corrupt subsequent connections using the same IP and port tuple.'
+  },
+  {
+    id: 'q_cse_03',
+    department: 'CSE',
+    departmentName: 'Computer Science & Engineering',
+    role: 'Systems Software Engineer',
+    category: 'Data Structures & Algorithms',
+    difficulty: 'Advanced',
+    questionText: 'How is a Least Recently Used (LRU) Cache implemented to achieve O(1) time complexity for both get() and put() operations? Which data structures are combined?',
+    expectedKeypoints: [
+      'Combines a Hash Map (Hash Table) with a Doubly Linked List',
+      'Hash Map stores Key -> Node pointer for O(1) constant time lookup',
+      'Doubly Linked List maintains temporal usage order: Most Recently Used at Head, Least Recently Used at Tail',
+      'When an item is accessed (get or put), its node is spliced out and moved to the Head in O(1)',
+      'When capacity is exceeded, the Tail node is removed from both the list and the hash map in O(1)'
+    ],
+    requiredKeywords: ['lru', 'cache', 'doubly linked list', 'hash map', 'o(1)', 'constant time', 'head', 'tail', 'eviction', 'node'],
+    modelAnswer: 'An optimal LRU Cache achieves O(1) time complexity for both get() and put() by pairing a Hash Map with a Doubly Linked List. The Hash Map maps each cache key to its corresponding node memory pointer in the linked list, guaranteeing O(1) search. The Doubly Linked List tracks order of recency: newly inserted or accessed nodes are placed at the Head (MRU), while the oldest elements naturally migrate to the Tail (LRU). When get(key) is invoked, the node is retrieved via the map and spliced to the Head in O(1) pointer updates. When put(key, value) is called at capacity, the Tail node is decoupled in O(1), deleted from the Hash Map, and the new item is pushed to the Head.'
+  },
+  {
+    id: 'q_cse_04',
+    department: 'CSE',
+    departmentName: 'Computer Science & Engineering',
+    role: 'Database & Systems Engineer',
+    category: 'Database Systems & Storage',
+    difficulty: 'Advanced',
+    questionText: 'Explain the difference between clustered and non-clustered database indexes. Why are B+ Trees preferred over Binary Search Trees or Hash Tables for disk-based storage engines?',
+    expectedKeypoints: [
+      'Clustered index physically sorts and stores data rows on disk in index order (one per table)',
+      'Non-clustered index creates a separate structure storing keys with pointers to physical row locations (multiple allowed)',
+      'B+ Trees have high fan-out (wide branching factor), minimizing disk I/O seek operations compared to deep BSTs',
+      'B+ Trees store all actual record pointers in leaf nodes linked as a sequential doubly linked list, enabling fast range scans',
+      'Hash tables only support O(1) equality searches and cannot perform range queries (e.g., BETWEEN, <, >)'
+    ],
+    requiredKeywords: ['clustered', 'non-clustered', 'b+ tree', 'b-tree', 'fan-out', 'disk i/o', 'range query', 'leaf node', 'binary search tree'],
+    modelAnswer: 'A clustered index determines the actual physical on-disk storage order of table rows; hence, a table can have only one clustered index (typically the Primary Key). A non-clustered index stores sorted index keys alongside pointers (row IDs) back to the underlying physical data pages, allowing multiple non-clustered indexes per table. Database engines (like InnoDB) utilize B+ Trees instead of Binary Search Trees because B+ Trees have a high branching factor (fan-out of hundreds), keeping tree height low (typically 3 to 4 levels) and requiring minimal expensive disk I/O operations per query. Furthermore, B+ Trees store all actual data pointers strictly in leaf nodes that are linked together as a bidirectional list, making sequential range scans (e.g., WHERE age BETWEEN 20 AND 30) extremely efficient, which Hash Tables cannot do.'
+  },
+
+  // =========================================================================
+  // 3. ARTIFICIAL INTELLIGENCE & MACHINE LEARNING (AI & ML / AI & DS)
+  // =========================================================================
+  {
+    id: 'q_ai_01',
+    department: 'AI & ML',
+    departmentName: 'Artificial Intelligence & Data Science',
     role: 'AI / Machine Learning Engineer',
-    category: 'AI & Machine Learning',
+    category: 'Machine Learning Foundations',
     difficulty: 'Intermediate',
     questionText: 'Explain the difference between L1 (Lasso) and L2 (Ridge) regularization and why L1 produces sparsity in model weights.',
     expectedKeypoints: [
@@ -17,77 +207,13 @@ export const interviewQuestions = [
       'L1 performs feature selection, while L2 is effective against multicollinearity'
     ],
     requiredKeywords: ['l1', 'l2', 'lasso', 'ridge', 'absolute', 'squared', 'sparsity', 'zero', 'penalty', 'contour', 'diamond'],
-    modelAnswer: 'L1 regularization (Lasso) adds a penalty proportional to the sum of absolute values of the coefficients (lambda * sum(|w|)), whereas L2 regularization (Ridge) adds a penalty proportional to the sum of squared coefficients (lambda * sum(w^2)). Geometrically, the constraint region for L1 is a diamond/polytope with sharp vertices on the coordinate axes. When the loss function contours expand, they are most likely to hit these sharp corners on the axes first, causing non-essential weights to become exactly zero, which achieves feature sparsity. In contrast, L2 has a smooth circular/spherical constraint region, which scales down weights smoothly without forcing them to zero.'
+    modelAnswer: 'L1 regularization (Lasso) adds a penalty proportional to the sum of absolute values of coefficients, whereas L2 regularization (Ridge) penalizes the sum of squared coefficients. Geometrically, the constraint region for L1 is a diamond/polytope with sharp vertices on the coordinate axes. When the loss function contours expand, they are most likely to hit these sharp corners on the axes first, causing non-essential weights to become exactly zero, achieving feature sparsity. In contrast, L2 has a smooth circular/spherical constraint region, which scales down weights smoothly without forcing them to zero.'
   },
   {
-    id: 'q_ml_02',
-    role: 'AI / Machine Learning Engineer',
-    category: 'AI & Machine Learning',
-    difficulty: 'Intermediate',
-    questionText: 'Explain the vanishing gradient problem in deep neural networks when using Sigmoid activation functions. How does ReLU or Batch Normalization solve it?',
-    expectedKeypoints: [
-      'The derivative of the Sigmoid function has a maximum value of 0.25',
-      'During backpropagation across multiple layers, multiplying many values <= 0.25 causes gradients to exponentially decay toward zero',
-      'Early layer weights receive negligible gradients and fail to learn',
-      'ReLU solves this because its derivative is a constant 1 for positive inputs',
-      'Batch Normalization standardizes activations to prevent inputs from saturating in the tails'
-    ],
-    requiredKeywords: ['vanishing gradient', 'sigmoid', 'derivative', '0.25', 'backpropagation', 'chain rule', 'exponential', 'relu', 'batch normalization', 'saturation'],
-    modelAnswer: 'The vanishing gradient problem occurs because the first derivative of the sigmoid function peaks at 0.25 and approaches 0 for large positive or negative inputs. By the chain rule, gradients backpropagating through N layers require computing products of these derivatives. Multiplying fractions smaller than 0.25 across dozens of layers causes the gradient to shrink exponentially toward zero, preventing earlier layers from updating. ReLU solves this because its gradient is constantly 1 for all positive inputs, eliminating decay. Batch Normalization normalizes pre-activation distributions, preventing inputs from shifting into saturated non-linear tail zones.'
-  },
-  {
-    id: 'q_ml_03',
-    role: 'AI / Machine Learning Engineer',
-    category: 'AI & Machine Learning',
-    difficulty: 'Advanced',
-    questionText: 'How do residual connections (skip connections) in ResNet architectures prevent degradation in very deep networks?',
-    expectedKeypoints: [
-      'Skip connections reformulate layers as learning residual mapping H(x) = F(x) + x instead of unreferenced H(x)',
-      'Allows gradients to backpropagate directly through the identity shortcut (+x) without diminishing',
-      'If additional layers are redundant, the network can easily learn to drive F(x) to zero, preserving identity mapping',
-      'Solves optimization degradation where deeper models had higher training errors than shallower counterparts'
-    ],
-    requiredKeywords: ['residual', 'skip connection', 'resnet', 'identity', 'f(x) + x', 'gradient', 'backpropagation', 'degradation', 'shortcut'],
-    modelAnswer: 'Residual connections bypass one or more layers by performing an element-wise addition: H(x) = F(x) + x, where x is the input and F(x) is the residual mapping to be learned. Mathematically, during backpropagation, the gradient of the loss with respect to x includes a "+ 1" term from the derivative of x: dLoss/dx = dLoss/dH * (dF/dx + 1). This ensures gradients can flow unimpeded directly back to early layers even if dF/dx is small. Furthermore, if a layer is unnecessary, the optimizer can easily set F(x) = 0, falling back to an identity function, which guarantees deeper networks perform at least as well as shallower ones.'
-  },
-  {
-    id: 'q_ml_04',
-    role: 'AI / Machine Learning Engineer',
-    category: 'AI & Machine Learning',
-    difficulty: 'Intermediate',
-    questionText: 'What is the Bias-Variance tradeoff in Machine Learning, and how do techniques like Cross-Validation, Regularization, and Ensemble methods help manage it?',
-    expectedKeypoints: [
-      'High Bias causes underfitting by making overly simplistic assumptions about data',
-      'High Variance causes overfitting by being excessively sensitive to small fluctuations and noise in training data',
-      'Total Expected Error = Bias^2 + Variance + Irreducible Error',
-      'Regularization and pruning reduce variance by constraining model complexity',
-      'Bagging (e.g. Random Forests) reduces variance, while Boosting (e.g. XGBoost) reduces bias'
-    ],
-    requiredKeywords: ['bias', 'variance', 'tradeoff', 'underfitting', 'overfitting', 'regularization', 'cross-validation', 'ensemble', 'bagging', 'boosting'],
-    modelAnswer: 'The Bias-Variance tradeoff describes the tension between two sources of error in supervised learning. Bias is error caused by overly simplistic model assumptions (leading to underfitting), while Variance is error caused by high sensitivity to noise in the training set (leading to overfitting). Total expected error is composed of Bias squared plus Variance plus irreducible noise. To manage this tradeoff, k-fold cross-validation is used to detect overfitting early; L1/L2 regularization penalizes extreme weights to constrain variance; and ensemble methods like Bagging aggregate diverse high-variance models to reduce variance, while Boosting iteratively fits residual errors to reduce bias.'
-  },
-  {
-    id: 'q_ml_05',
-    role: 'AI / Machine Learning Engineer',
-    category: 'AI & Machine Learning',
-    difficulty: 'Intermediate',
-    questionText: 'Compare the Adam optimizer with standard Stochastic Gradient Descent with Momentum (SGD-M). When would you choose one over the other?',
-    expectedKeypoints: [
-      'SGD-M adds an exponentially decaying moving average of past gradients to accelerate through ravines',
-      'Adam combines momentum (first moment / mean) with RMSProp (second moment / uncentered variance) for adaptive per-parameter learning rates',
-      'Adam handles sparse gradients and non-stationary objectives with minimal hyperparameter tuning',
-      'SGD-M often generalizes slightly better on vision models when tuned with an optimal learning rate schedule'
-    ],
-    requiredKeywords: ['adam', 'sgd', 'momentum', 'learning rate', 'adaptive', 'first moment', 'second moment', 'rmsprop', 'generalization', 'hyperparameter'],
-    modelAnswer: 'SGD with Momentum accelerates gradient descent by adding a fraction of the previous velocity vector to the current gradient update, which dampens oscillations across ravines. Adam (Adaptive Moment Estimation) combines momentum with adaptive learning rates by tracking both the exponentially decaying average of past gradients (first raw moment) and past squared gradients (second uncentered moment), including bias correction for early iterations. Adam works exceptionally well out-of-the-box on NLP and complex transformers due to per-parameter adaptive steps. However, carefully scheduled SGD-M is often preferred in computer vision because empirical studies show it finds flatter, better-generalizing local minima.'
-  },
-
-  // ==========================================
-  // 2. GENERATIVE AI & LLM SYSTEMS
-  // ==========================================
-  {
-    id: 'q_genai_01',
-    role: 'AI / Machine Learning Engineer',
+    id: 'q_ai_02',
+    department: 'AI & ML',
+    departmentName: 'Artificial Intelligence & Data Science',
+    role: 'Generative AI & LLM Engineer',
     category: 'Generative AI & LLMs',
     difficulty: 'Advanced',
     questionText: 'Describe the complete architecture of a Retrieval-Augmented Generation (RAG) system. How do chunking, vector embedding, similarity search, and reranking work together?',
@@ -98,29 +224,15 @@ export const interviewQuestions = [
       'Reranking: Cross-encoder reranker models score top candidates for precision before prompt injection',
       'Generation: Augmenting LLM context with top chunks alongside system prompts to eliminate hallucinations'
     ],
-    requiredKeywords: ['rag', 'retrieval', 'generation', 'chunking', 'embedding', 'vector', 'similarity', 'reranking', 'context', 'llm', 'hallucination'],
-    modelAnswer: 'A RAG architecture grounds LLM generation in external authoritative data. In the indexing pipeline: documents are partitioned into chunked segments (e.g., 512 tokens with 10% overlap to preserve context across boundaries) and encoded into vector embeddings using models like text-embedding-3 or BGE. These vectors are indexed in a vector store using approximate nearest neighbor algorithms like HNSW. At inference time: the user query is embedded, and top-K candidate chunks are retrieved via cosine similarity or dot product. A cross-encoder reranker rescores these candidates to rank the most contextually relevant excerpts. Finally, these retrieved chunks are formatted into the LLM system prompt context, allowing the model to generate accurate, verifiable answers with citations and zero hallucinations.'
+    requiredKeywords: ['rag', 'retrieval-augmented generation', 'chunking', 'embedding', 'vector database', 'cosine similarity', 'hnsw', 'reranking', 'hallucination'],
+    modelAnswer: 'A production RAG system bridges LLMs with dynamic external knowledge. It starts with Document Processing, where documents are cleaned and split into overlapping chunks to preserve local context. Each chunk is passed through a dense embedding model, generating high-dimensional vectors stored in a Vector DB with HNSW indexing. At runtime, user queries are embedded and compared using Cosine Similarity to retrieve candidate chunks. A Cross-Encoder Reranker then computes fine-grained query-chunk relevance scores, filtering down to the top-K chunks. Finally, these validated snippets are injected into the LLM system prompt as verified context, enabling the model to generate accurate, citation-backed answers while preventing hallucinations.'
   },
   {
-    id: 'q_genai_02',
-    role: 'AI / Machine Learning Engineer',
-    category: 'Generative AI & LLMs',
-    difficulty: 'Intermediate',
-    questionText: 'When should an engineering team choose Fine-Tuning versus Retrieval-Augmented Generation (RAG) when building an enterprise LLM solution?',
-    expectedKeypoints: [
-      'RAG is ideal for dynamic, frequently updated factual knowledge, private docs, and verifiable source citations',
-      'Fine-Tuning is ideal for altering output style, tone, format, domain jargon, or teaching specialized procedural reasoning',
-      'RAG has lower training costs and prevents catastrophic forgetting',
-      'Fine-Tuning reduces prompt token counts and latency for specialized tasks',
-      'Hybrid approach: Fine-tuning for style/task-adaptation combined with RAG for up-to-date facts'
-    ],
-    requiredKeywords: ['fine-tuning', 'rag', 'knowledge', 'latency', 'hallucination', 'citations', 'cost', 'style', 'catastrophic forgetting', 'tokens'],
-    modelAnswer: 'RAG is the preferred choice when dealing with dynamic, private, or frequently evolving factual knowledge, because updating the vector index requires no model retraining and provides transparent source attribution. Fine-tuning modifies the model weights and is best suited for teaching specialized vocabulary, structured response formats (like JSON schemas), domain tone, or complex downstream reasoning tasks where prompt tokens must be conserved. Fine-tuning alone fails at memorizing new facts reliably and suffers from hallucinations and catastrophic forgetting. Therefore, modern enterprise systems employ a hybrid strategy: fine-tuning smaller open-weight models for task execution efficiency and combining them with RAG for factual grounding.'
-  },
-  {
-    id: 'q_genai_03',
-    role: 'AI / Machine Learning Engineer',
-    category: 'Generative AI & LLMs',
+    id: 'q_ai_03',
+    department: 'AI & ML',
+    departmentName: 'Artificial Intelligence & Data Science',
+    role: 'Deep Learning Research Engineer',
+    category: 'Deep Learning & Neural Architectures',
     difficulty: 'Advanced',
     questionText: 'How does self-attention in the Transformer architecture compute relationships between tokens? Describe the Query, Key, and Value dot-product calculation.',
     expectedKeypoints: [
@@ -130,210 +242,231 @@ export const interviewQuestions = [
       'Division by sqrt(d_k) stabilizes variance and prevents softmax from entering regions with vanishing gradients',
       'Softmax normalizes scores into attention weights that weight the Value vectors'
     ],
-    requiredKeywords: ['self-attention', 'transformer', 'query', 'key', 'value', 'q', 'k', 'v', 'dot product', 'softmax', 'sqrt', 'd_k', 'dimension', 'weights'],
-    modelAnswer: 'In Transformers, self-attention computes pairwise affinities between tokens in a sequence. Input embeddings are linearly projected into three distinct representations: Query (Q), Key (K), and Value (V). The dot product Q * K^T produces an unscaled attention matrix representing affinities between all token pairs. Because dot products grow large in high dimensions (d_k), they are scaled by 1/sqrt(d_k) to prevent the softmax function from saturating into regions with near-zero gradients. A row-wise softmax normalizes the scores into probabilities summing to 1. Finally, these attention weights are multiplied by V to generate a context-aware representation for each token.'
-  },
-  {
-    id: 'q_genai_04',
-    role: 'AI / Machine Learning Engineer',
-    category: 'Generative AI & LLMs',
-    difficulty: 'Intermediate',
-    questionText: 'What strategies and guardrails can you implement in production to mitigate LLM hallucinations and ensure deterministic structured outputs?',
-    expectedKeypoints: [
-      'Grounding with verified context through RAG and strict system prompt constraints',
-      'Enforcing structured outputs using JSON schemas, Pydantic validation, or grammar-constrained sampling',
-      'Lowering temperature (e.g. 0.0 or 0.2) to reduce stochastic randomness',
-      'Implementing automated evaluation guardrails (e.g., NeMo Guardrails, hallucination detectors)',
-      'Human-in-the-loop verification and citation attribution'
-    ],
-    requiredKeywords: ['hallucination', 'guardrails', 'temperature', 'json', 'structured', 'schema', 'grounding', 'rag', 'pydantic', 'deterministic'],
-    modelAnswer: 'To eliminate hallucinations in production: First, ground the model using RAG with an explicit prompt instruction stating: "Answer solely using the provided context; if unknown, state that clearly." Second, set temperature to 0.0 for deterministic, greedy decoding. Third, enforce rigid output structures using constrained decoding tools (such as OpenAI Structured Outputs or Outlines/Pydantic) to guarantee valid JSON formatting at the token generation level. Fourth, run automated post-generation guardrail filters (such as semantic similarity checks between output claims and source chunks). Fifth, require verbatim source citations so users and systems can verify statements.'
+    requiredKeywords: ['self-attention', 'transformer', 'query', 'key', 'value', 'softmax', 'dot product', 'scaled dot-product', 'd_k'],
+    modelAnswer: 'Self-attention allows every token in an input sequence to dynamically weight and attend to every other token based on contextual relevance. The input embeddings are linearly projected into three matrices: Queries (Q), Keys (K), and Values (V). The dot product Q * K^T measures semantic compatibility between all token pairs, producing an unnormalized attention matrix. This is scaled by dividing by sqrt(d_k) to counteract large dot products that would push the Softmax function into regions of vanishing gradients. Softmax is then applied row-wise to generate attention distribution weights summing to 1. Finally, these weights are multiplied by V to produce a context-rich output representation.'
   },
 
-  // ==========================================
-  // 3. FULL-STACK & SYSTEM DESIGN
-  // ==========================================
+  // =========================================================================
+  // 4. ELECTRICAL & ELECTRONICS ENGINEERING (EEE)
+  // =========================================================================
   {
-    id: 'q_sys_01',
-    role: 'Software Engineer',
-    category: 'System Design & Backend',
+    id: 'q_eee_01',
+    department: 'EEE',
+    departmentName: 'Electrical & Electronics Engineering',
+    role: 'Power Systems & Electrical Engineer',
+    category: 'Power Systems & Grids',
     difficulty: 'Intermediate',
-    questionText: 'How do database indexes (such as B-Tree and Hash indexes) work internally, and what are the tradeoffs of indexing every column?',
+    questionText: 'What is Power Factor in AC electrical circuits? Why is low power factor disadvantageous to utility grids and industrial consumers, and how is it corrected?',
     expectedKeypoints: [
-      'B-Tree indexes maintain self-balancing balanced tree structures supporting range queries and logarithmic lookups O(log N)',
-      'Hash indexes offer O(1) equality lookups but do not support range scans or ordering',
-      'Read performance significantly improves by avoiding expensive sequential full table scans',
-      'Write performance degrades because every INSERT, UPDATE, and DELETE must synchronously rebalance and update indexes',
-      'Increased disk and memory footprint from storing secondary index pages'
+      'Power Factor is the ratio of Real Power (kW, doing useful work) to Apparent Power (kVA, total drawn from grid): PF = cos(theta)',
+      'Inductive loads (motors, transformers, ballasts) draw lagging reactive power (kVAR) to maintain magnetic fields',
+      'Low power factor causes higher current draw for the same real power, leading to increased I^2 * R transmission line losses and voltage drops',
+      'Utilities impose severe financial penalties on industrial plants with PF < 0.90 to 0.95',
+      'Power factor is corrected by installing shunt capacitor banks or synchronous condensers to supply lagging reactive power locally'
     ],
-    requiredKeywords: ['index', 'b-tree', 'hash', 'lookup', 'o(log n)', 'table scan', 'write', 'insert', 'tradeoff', 'overhead', 'disk'],
-    modelAnswer: 'A B-Tree index is a balanced, multi-way search tree that maintains sorted keys across leaf pages linked in order. This enables O(log N) point lookups, prefix searches, and range scans. A Hash index maps keys to buckets, offering O(1) lookups but failing on range queries. While indexing high-cardinality query columns dramatically accelerates SELECT queries by avoiding full table scans, indexing every column introduces severe drawbacks: every INSERT, UPDATE, or DELETE requires updating both the base table and all corresponding index trees, causing significant write latency. Additionally, secondary indexes consume substantial disk space and RAM, displacing working data from the buffer pool.'
+    requiredKeywords: ['power factor', 'real power', 'apparent power', 'reactive power', 'lagging', 'capacitors', 'transmission losses', 'kvar', 'kw', 'kva'],
+    modelAnswer: 'Power Factor (PF) is the ratio of Real Power (P in kW) performing real mechanical/thermal work to Apparent Power (S in kVA) supplied by the electrical grid: PF = cos(theta). Industrial inductive loads (such as induction motors and transformers) require magnetizing current, causing current to lag behind voltage and drawing non-productive Reactive Power (kVAR). A low power factor demands significantly higher line currents to deliver the same active power, resulting in higher I^2 * R heating losses across generators, transformers, and cables, as well as poor voltage regulation. Grid utilities penalize industrial customers for low PF. It is corrected by connecting static Shunt Capacitor Banks or Automatic Power Factor Correction (APFC) panels in parallel with loads to supply the required leading reactive current locally.'
   },
   {
-    id: 'q_sys_02',
-    role: 'Software Engineer',
-    category: 'System Design & Backend',
+    id: 'q_eee_02',
+    department: 'EEE',
+    departmentName: 'Electrical & Electronics Engineering',
+    role: 'Power Electronics Engineer',
+    category: 'Power Electronics & Converters',
     difficulty: 'Advanced',
-    questionText: 'Explain the CAP theorem and describe how an architect designs for high availability versus strong consistency in distributed systems.',
+    questionText: 'Explain the working principle of a DC-DC Buck-Boost Converter. How does pulse-width modulation (PWM) regulate output voltage, and why is the polarity inverted?',
     expectedKeypoints: [
-      'CAP stands for Consistency (all nodes see same data simultaneously), Availability (every request receives a response), and Partition Tolerance (system continues functioning despite network splits)',
-      'Because network partitions (P) are inevitable in real-world distributed networks, systems must choose between CP and AP',
-      'CP Systems (e.g. Google Spanner, etcd, MongoDB) reject writes or fail availability during splits to prevent split-brain',
-      'AP Systems (e.g. Cassandra, DynamoDB) accept local writes during network splits, resolving conflicts later using Eventual Consistency or CRDTs'
+      'Buck-Boost converts input DC voltage to a higher or lower magnitude output DC voltage depending on Duty Cycle (D)',
+      'When switch is ON: Inductor charges from source and stores energy in magnetic field; diode is reverse-biased; load is powered by capacitor',
+      'When switch is OFF: Inductor magnetic field collapses, reversing its polarity (L * di/dt), forward-biasing the diode and transferring energy to load and capacitor',
+      'Voltage transfer ratio: V_out / V_in = -D / (1 - D); D < 0.5 operates in Buck mode, D > 0.5 operates in Boost mode',
+      'The output voltage polarity is inverted with respect to the input ground due to inductor flywheel discharge direction'
     ],
-    requiredKeywords: ['cap', 'consistency', 'availability', 'partition tolerance', 'network split', 'eventual consistency', 'distributed', 'cp', 'ap', 'tradeoff'],
-    modelAnswer: 'The CAP theorem asserts that a distributed data store can simultaneously provide at most two out of three guarantees: Consistency, Availability, and Partition Tolerance. In real-world physical networks, network partitions (delays, dropped packets) are inevitable; thus, distributed systems must trade off between Consistency (CP) and Availability (AP). A CP system guarantees that reads return the latest write across all nodes; during a network partition, it will reject requests or block until nodes sync, sacrificing availability to avoid stale data. An AP system guarantees that every non-failing node returns a response; during partitions, divergent writes are accepted locally, and the system relies on Eventual Consistency, vector clocks, or CRDTs for asynchronous reconciliation.'
+    requiredKeywords: ['buck-boost', 'dc-dc converter', 'duty cycle', 'pwm', 'inductor', 'diode', 'polarity inversion', 'switching', 'continuous conduction'],
+    modelAnswer: 'A DC-DC Buck-Boost converter produces an output voltage that can be higher or lower in magnitude than the input voltage, governed by duty ratio D: V_out = -V_in * (D / (1 - D)). During the ON state (switch closed), current flows through the inductor, storing energy in its magnetic field while the diode is reverse-biased and the output capacitor sustains the load. During the OFF state (switch open), the inductor opposes current interruption by reversing its terminal voltage polarity (flywheel action). This forward-biases the freewheeling diode, dumping stored energy into the output filter capacitor and load. Because the inductor discharges current into ground and pulls from the output terminal, the resulting output voltage is intrinsically inverted in polarity relative to the input.'
   },
   {
-    id: 'q_sys_03',
-    role: 'Software Engineer',
-    category: 'System Design & Backend',
+    id: 'q_eee_03',
+    department: 'EEE',
+    departmentName: 'Electrical & Electronics Engineering',
+    role: 'Control Systems & Automation Engineer',
+    category: 'Control Systems & Stability',
     difficulty: 'Intermediate',
-    questionText: 'Describe various caching patterns (Cache-Aside, Write-Through, Write-Behind) and how you mitigate cache stampedes and invalidation issues.',
+    questionText: 'Explain the role of Proportional, Integral, and Derivative (PID) controllers in feedback loops. How does each term influence rise time, steady-state error, and overshoot?',
     expectedKeypoints: [
-      'Cache-Aside (Lazy Loading): Application reads from cache; on miss, fetches from database and writes back to cache',
-      'Write-Through: Application writes to cache, which synchronously updates the database before completing',
-      'Write-Behind (Write-Back): Application writes to cache, which asynchronously batches writes to database',
-      'Cache Stampede (Thundering Herd): Addressed via mutual exclusion locks (mutex) or probabilistic early expiration (XFetch)',
-      'TTL (Time-to-Live) and event-driven invalidation via database CDC (Change Data Capture) or message brokers'
+      'Proportional (P): Produces output proportional to error (Kp * e(t)); reduces rise time but cannot eliminate steady-state error without offset',
+      'Integral (I): Accumulates past error over time (Ki * integral e(t) dt); drives steady-state error strictly to zero, but can cause overshoot and windup',
+      'Derivative (D): Responds to rate of error change (Kd * de(t)/dt); anticipates future errors, dampens oscillations, and improves transient stability',
+      'Tuning methods like Ziegler-Nichols balance stability margins with fast settling time'
     ],
-    requiredKeywords: ['caching', 'cache-aside', 'write-through', 'write-behind', 'ttl', 'invalidation', 'cache stampede', 'thundering herd', 'redis', 'database'],
-    modelAnswer: 'Caching strategies optimize read latency and database load. In Cache-Aside (Lazy Loading), the application checks the cache first; on a miss, it queries the DB and repopulates the cache. In Write-Through, updates are written to the cache and DB synchronously. In Write-Behind, writes are saved immediately to the cache and flushed asynchronously to the database in batches, maximizing write throughput. To prevent a Cache Stampede (when many concurrent requests hit a cold/expired key simultaneously), use distributed mutex locks so only one worker queries the DB while others wait, or implement probabilistic early background recomputation. Finally, combine time-to-live (TTL) limits with event-driven invalidation via database change streams.'
-  },
-  {
-    id: 'q_sys_04',
-    role: 'Software Engineer',
-    category: 'System Design & Backend',
-    difficulty: 'Intermediate',
-    questionText: 'Compare REST APIs with GraphQL. What problems does GraphQL solve, and what challenges does it introduce regarding caching and security?',
-    expectedKeypoints: [
-      'REST organizes endpoints around resources; GraphQL uses a single endpoint with client-specified schema queries',
-      'GraphQL solves Over-fetching (getting unused fields) and Under-fetching (requiring N+1 sequential round-trips)',
-      'GraphQL challenges: Standard HTTP/CDN caching (like Cache-Control on URLs) is harder because queries use POST requests',
-      'GraphQL challenges: Malicious deeply nested queries require query complexity analysis and depth limiting',
-      'N+1 database query problem in resolvers solved using DataLoader batching'
-    ],
-    requiredKeywords: ['rest', 'graphql', 'over-fetching', 'under-fetching', 'caching', 'schema', 'endpoint', 'dataloader', 'n+1', 'query complexity'],
-    modelAnswer: 'REST exposes fixed endpoints for each resource, which often leads to over-fetching (downloading unneeded fields) or under-fetching (requiring multiple waterfall requests to assemble related data). GraphQL solves this by allowing clients to request exactly the nested fields they require in a single POST request. However, GraphQL introduces architectural complexities: because requests are dynamic POST bodies to a single endpoint, edge HTTP caching via CDNs is non-trivial compared to standard REST GET URLs. Additionally, unbounded nested queries can cause Denial-of-Service attacks, requiring server-side query depth limiting, cost analysis, and DataLoader batching to resolve N+1 database queries.'
+    requiredKeywords: ['pid', 'proportional', 'integral', 'derivative', 'rise time', 'steady-state error', 'overshoot', 'damping', 'feedback', 'controller'],
+    modelAnswer: 'A PID controller calculates an error value as the difference between a desired setpoint and measured process variable, applying corrections across three terms: 1) Proportional (P) generates a response proportional to current error, speeding up system rise time and reducing sluggishness, though high Kp induces oscillations and leaves residual steady-state error; 2) Integral (I) integrates cumulative error over time, continuously increasing output until steady-state error is eliminated completely, though excessive Ki leads to overshoot and integrator windup; 3) Derivative (D) tracks the rate of change of error, acting as a predictive damper that counters rapid fluctuations, suppresses overshoot, and accelerates settling time.'
   },
 
-  // ==========================================
-  // 4. DATA STRUCTURES & ALGORITHMS
-  // ==========================================
+  // =========================================================================
+  // 5. MECHANICAL ENGINEERING (MECH)
+  // =========================================================================
   {
-    id: 'q_dsa_01',
-    role: 'Software Engineer',
-    category: 'Algorithms & Data Structures',
+    id: 'q_mech_01',
+    department: 'MECH',
+    departmentName: 'Mechanical Engineering',
+    role: 'Mechanical Design & Thermal Engineer',
+    category: 'Thermodynamics & Heat Transfer',
     difficulty: 'Intermediate',
-    questionText: 'How does a Hash Table achieve O(1) average lookup time, and what collision resolution strategies (Chaining vs Open Addressing) are used?',
+    questionText: 'State the Second Law of Thermodynamics (Kelvin-Planck and Clausius statements). Why can no heat engine achieve 100% thermal efficiency, and what defines Carnot efficiency?',
     expectedKeypoints: [
-      'Hash function maps arbitrary keys to bounded integer indices in an internal bucket array',
-      'Collision Resolution - Separate Chaining: Each bucket holds a linked list or self-balancing tree (e.g., Red-Black tree in Java HashMap)',
-      'Collision Resolution - Open Addressing: Finds next open slot using Linear Probing, Quadratic Probing, or Double Hashing',
-      'Load Factor (n/k): When threshold (e.g. 0.75) is exceeded, table dynamically resizes (doubles) and rehashes keys',
-      'Worst-case lookup is O(N) if all keys hash to the same bucket'
+      'Kelvin-Planck statement: Impossible for a heat engine operating in a cycle to convert all absorbed heat entirely into work without rejecting some heat to a low-temperature sink',
+      'Clausius statement: Impossible for heat to flow spontaneously from a colder body to a hotter body without external work input',
+      'Second Law implies total entropy of an isolated system must increase (delta S >= 0)',
+      'Carnot efficiency represents maximum theoretical limit between two thermal reservoirs: eta_Carnot = 1 - (T_cold / T_hot)',
+      '100% efficiency would require T_cold = 0 Kelvin (absolute zero), which is physically unattainable by the Third Law'
     ],
-    requiredKeywords: ['hash table', 'o(1)', 'hash function', 'collision', 'separate chaining', 'open addressing', 'linear probing', 'load factor', 'rehashing'],
-    modelAnswer: 'A Hash Table uses a deterministic hash function to convert a key into an integer hash code, which is mapped modulo the array capacity to an array index for O(1) average time access. When different keys map to the same bucket index (a collision), two primary resolution strategies are used: Separate Chaining stores colliding entries in a linked list or balanced binary tree at that index; Open Addressing probes for an empty array slot using linear probing, quadratic probing, or double hashing. To prevent performance from degrading to O(N), hash tables maintain a load factor (number of elements / capacity, typically 0.75); once crossed, the array doubles in size and all existing keys are rehashed.'
+    requiredKeywords: ['thermodynamics', 'second law', 'kelvin-planck', 'clausius', 'carnot', 'thermal efficiency', 'entropy', 'reservoir', 'heat engine'],
+    modelAnswer: 'The Second Law of Thermodynamics dictates the direction of thermal processes and energy degradation. The Kelvin-Planck statement asserts that it is impossible to construct a cyclically operating engine whose sole effect is to extract heat from a reservoir and convert it completely into equivalent mechanical work—some heat must always be rejected to a colder sink. The Clausius statement establishes that heat cannot spontaneously transfer from a cooler to a warmer medium without external work input. The Carnot cycle defines the upper thermodynamic efficiency limit between two absolute temperatures: eta = 1 - (T_cold / T_hot). Achieving 100% efficiency would require an absolute zero cold sink (T_cold = 0 K), which is physically impossible, proving that thermal engines must always discharge waste heat.'
   },
   {
-    id: 'q_dsa_02',
-    role: 'Software Engineer',
-    category: 'Algorithms & Data Structures',
+    id: 'q_mech_02',
+    department: 'MECH',
+    departmentName: 'Mechanical Engineering',
+    role: 'Fluids & Aerodynamics Engineer',
+    category: 'Fluid Mechanics & Hydraulics',
     difficulty: 'Intermediate',
-    questionText: 'Describe the design and implementation of an LRU (Least Recently Used) Cache with O(1) get and put time complexity.',
+    questionText: 'State Bernoulli Equation and the key assumptions required for its application. Explain the physical significance of each head term (pressure head, velocity head, elevation head).',
     expectedKeypoints: [
-      'Data structure combination: Hash Map paired with a Doubly Linked List',
-      'Hash Map stores Key -> Node reference for O(1) lookup',
-      'Doubly Linked List maintains access order: Head stores Most Recently Used (MRU), Tail stores Least Recently Used (LRU)',
-      'get(key): Check map, move accessed node to Head of list, return value in O(1)',
-      'put(key, value): If key exists, update value and move to Head; if new, insert at Head. If capacity exceeded, remove node at Tail and delete from Map in O(1)'
+      'Equation: P / (rho * g) + V^2 / (2 * g) + z = Constant along a streamline',
+      'Assumptions: Incompressible fluid, steady flow, inviscid (frictionless/zero viscosity), and flow along a streamline',
+      'Pressure Head (P / rho*g): Energy stored per unit weight due to static fluid pressure',
+      'Velocity Head (V^2 / 2*g): Kinetic energy per unit weight of fluid moving at velocity V',
+      'Elevation/Datum Head (z): Potential energy per unit weight due to height above reference datum',
+      'Represents total conservation of mechanical energy in ideal fluid flow'
     ],
-    requiredKeywords: ['lru', 'cache', 'doubly linked list', 'hash map', 'o(1)', 'head', 'tail', 'get', 'put', 'eviction', 'capacity'],
-    modelAnswer: 'An LRU Cache with O(1) get and put operations is built by combining a Hash Map with a Doubly Linked List. The Hash Map stores key-to-node references for instantaneous O(1) lookup. The Doubly Linked List maintains recency ordering with dummy head and tail sentinel nodes: the node directly following head is Most Recently Used (MRU), and the node preceding tail is Least Recently Used (LRU). On get(key): if present, we detach the node and re-insert it at the head, returning its value in O(1). On put(key, value): if the key exists, we update its value and move it to the head; if it is new, we insert a new node at the head and add it to the map. If the cache exceeds capacity, we evict the tail node and delete its key from the map in O(1).'
+    requiredKeywords: ['bernoulli', 'fluid mechanics', 'streamline', 'incompressible', 'steady flow', 'inviscid', 'pressure head', 'velocity head', 'elevation head', 'conservation of energy'],
+    modelAnswer: 'Bernoulli Equation is an expression of the conservation of mechanical energy for flowing fluids: P / (rho * g) + V^2 / (2 * g) + z = H_total (constant). It rests on four key assumptions: 1) Steady flow (conditions do not vary with time); 2) Incompressible fluid (constant density); 3) Inviscid fluid (shear stresses and viscous dissipation are negligible); 4) Flow strictly along a streamline. Physically, P/(rho*g) is the Pressure Head, representing flow work and internal pressure energy per unit weight; V^2/(2*g) is the Velocity Head, quantifying kinetic energy per unit weight; and z is the Elevation Head, denoting gravitational potential energy per unit weight.'
   },
   {
-    id: 'q_dsa_03',
-    role: 'Software Engineer',
-    category: 'Algorithms & Data Structures',
-    difficulty: 'Intermediate',
-    questionText: 'If you have an imbalanced dataset where the positive class is only 1% of total samples, why is Accuracy a misleading metric? What metrics would you use instead?',
+    id: 'q_mech_03',
+    department: 'MECH',
+    departmentName: 'Mechanical Engineering',
+    role: 'Structural Mechanics & CAD Engineer',
+    category: 'Mechanics of Materials & Strength',
+    difficulty: 'Advanced',
+    questionText: 'Explain the Von Mises Yield Criterion and how it differs from the Maximum Shear Stress (Tresca) criterion. When should an engineer apply Von Mises in finite element analysis?',
     expectedKeypoints: [
-      'A trivial classifier predicting majority class gets 99% accuracy while failing completely',
-      'Use Precision, Recall, F1-Score, and Precision-Recall AUC (PR-AUC)',
-      'Precision = TP / (TP + FP); Recall = TP / (TP + FN)',
-      'F1-score is the harmonic mean of Precision and Recall',
-      'Consider techniques like SMOTE, class weights, focal loss, or threshold adjustment'
+      'Von Mises criterion states yielding begins when the distortion energy per unit volume equals that at yield in a simple uniaxial tension test',
+      'Also known as Maximum Distortion Energy Theory or Octahedral Shear Stress theory',
+      'Tresca criterion predicts yielding when maximum shear stress reaches shear stress at yield (tau_max = sigma_y / 2)',
+      'Tresca is more conservative (predicts yielding earlier at lower stress states)',
+      'Von Mises aligns much closer with experimental physical test data for ductile metals (steel, aluminum) and is standard in FEA software'
     ],
-    requiredKeywords: ['imbalanced', 'accuracy', 'misleading', 'precision', 'recall', 'f1', 'f1-score', 'majority', 'minority', 'pr-auc', 'false positive', 'false negative'],
-    modelAnswer: 'On a dataset with 99% negative and 1% positive examples, standard Accuracy is deceptive because a naive model that predicts "negative" for every single sample trivially achieves 99% accuracy, despite having 0% recall on the critical class (e.g., fraud or disease). Instead, we evaluate using Precision (TP / (TP + FP)), Recall (TP / (TP + FN)), and the F1-Score (harmonic mean of Precision and Recall). Additionally, the Precision-Recall Area Under Curve (PR-AUC) is much more informative than ROC-AUC when dealing with heavily skewed distributions. Tuning classification decision thresholds and applying class weighting or focal loss also ensures the minority class is prioritized.'
-  },
-  {
-    id: 'q_dsa_04',
-    role: 'Software Engineer',
-    category: 'Algorithms & Data Structures',
-    difficulty: 'Intermediate',
-    questionText: 'Explain Breadth-First Search (BFS) versus Depth-First Search (DFS) on graphs. In which scenarios is BFS strictly superior to DFS?',
-    expectedKeypoints: [
-      'BFS explores level-by-level using a FIFO Queue; DFS explores branches deeply using a LIFO Stack or recursion',
-      'Both have time complexity O(V + E) where V is vertices and E is edges',
-      'BFS is strictly optimal for finding the shortest path in unweighted graphs',
-      'DFS uses less memory O(D) where D is max depth, whereas BFS memory can be O(B^D) storing the widest layer',
-      'DFS is ideal for topological sorting, cycle detection, and maze/puzzle exploration'
-    ],
-    requiredKeywords: ['bfs', 'dfs', 'queue', 'stack', 'graph', 'shortest path', 'unweighted', 'time complexity', 'space complexity', 'vertices', 'edges'],
-    modelAnswer: 'Breadth-First Search (BFS) and Depth-First Search (DFS) are fundamental graph traversal algorithms with O(V + E) time complexity. BFS visits nodes level by level using a FIFO Queue, whereas DFS traverses deeply down a branch using recursion or an explicit LIFO Stack. BFS is strictly superior when finding the shortest path (minimum number of edges) between two nodes in an unweighted graph, as it guarantees reaching the target at the earliest level. Conversely, DFS is preferred when searching deep paths, detecting cycles in directed graphs, topological sorting, or when graph branching factors are large, since DFS memory footprint O(depth) is often much lower than BFS storing an entire level O(branching^depth).'
+    requiredKeywords: ['von mises', 'tresca', 'yield criterion', 'distortion energy', 'ductile', 'shear stress', 'finite element analysis', 'fea', 'uniaxial tension'],
+    modelAnswer: 'The Von Mises Yield Criterion states that yielding in ductile materials occurs when the second invariant of deviatoric stress (equivalent to distortion energy per unit volume) reaches the distortion energy at yield in simple uniaxial tension: sigma_vm >= sigma_yield. Unlike hydrostatic stress which causes volumetric deformation without plastic yield, Von Mises evaluates pure shear shape distortion. In contrast, the Tresca (Maximum Shear Stress) criterion predicts yield when maximum shear stress tau_max = (sigma_1 - sigma_3)/2 reaches sigma_yield / 2. Geometrically in principal stress space, Tresca forms a hexagonal cylinder inscribed inside the smooth elliptical cylinder of Von Mises. Tresca is more conservative by up to 15%, whereas Von Mises correlates far more accurately with actual experimental failure data for ductile alloys and is the default metric in modern FEA solvers.'
   },
 
-  // ==========================================
-  // 5. BEHAVIORAL & STAR LEADERSHIP
-  // ==========================================
+  // =========================================================================
+  // 6. CIVIL ENGINEERING (CIVIL)
+  // =========================================================================
   {
-    id: 'q_beh_01',
-    role: 'Software Engineer',
-    category: 'Behavioral & Leadership',
+    id: 'q_civil_01',
+    department: 'CIVIL',
+    departmentName: 'Civil Engineering',
+    role: 'Structural & Concrete Design Engineer',
+    category: 'Structural Analysis & RCC Design',
     difficulty: 'Intermediate',
-    questionText: 'Describe a situation where a machine learning model or software system you built failed to perform well in validation or production. How did you debug and resolve the issue?',
+    questionText: 'Explain the Limit State Method (LSM) of reinforced concrete design. Contrast Limit State of Collapse with Limit State of Serviceability.',
     expectedKeypoints: [
-      'Follows structured STAR method (Situation, Task, Action, Result)',
-      'Identifies clear failure symptom (e.g. overfitting, data leakage, distribution shift, label noise, production memory leak)',
-      'Methodical diagnostic steps (confusion matrix, error analysis, validation splits, logs inspection)',
-      'Actionable resolution (feature engineering, data cleaning, regularization, refactoring)',
-      'Quantified improvement in final metric'
+      'Limit State Method designs structures to ensure acceptable safety margins against collapse while guaranteeing service performance under working loads',
+      'Applies partial safety factors for materials (gamma_m: 1.5 for concrete, 1.15 for steel) and loads (gamma_f: 1.5 for Dead + Live Load)',
+      'Limit State of Collapse addresses ultimate structural failure: flexure, shear, compression, torsion, and buckling',
+      'Limit State of Serviceability governs everyday usability and user comfort: deflection limits, crack widths, and vibration control'
     ],
-    requiredKeywords: ['situation', 'task', 'action', 'result', 'validation', 'debug', 'metric', 'improved', 'root cause', 'star'],
-    modelAnswer: 'A strong behavioral answer follows the STAR framework. For instance: Situation: During an image classification project, my ResNet model attained 98% training accuracy but stalled at 61% validation accuracy. Task: I was tasked with identifying the root cause and boosting generalization without buying more data. Action: I conducted systematic error analysis, checking loss curves and confusion matrices. I discovered subtle data leakage in the initial random train/val split because multiple augmented frames from the same video were present in both sets. I restructured the split by unique patient/video IDs, added heavy data augmentation (mixup and random crop), and applied Dropout (0.3). Result: Overfitting was resolved, and test accuracy stabilized at 88.5%, successfully meeting project production requirements.'
+    requiredKeywords: ['limit state', 'rcc', 'collapse', 'serviceability', 'partial safety factor', 'deflection', 'cracking', 'concrete', 'reinforcement'],
+    modelAnswer: 'The Limit State Method (LSM) is a probabilistic, performance-based structural design philosophy that ensures a structure remains safe against collapse throughout its lifespan while meeting day-to-day usability criteria. It applies partial safety factors to both loads (factoring up loads to account for unpredicted load surges) and material strengths (factoring down concrete by 1.5 and steel by 1.15 to account for construction defects). The Limit State of Collapse safeguards against ultimate failure modes that could lead to loss of life—including catastrophic flexure, shear, axial compression, and torsion. The Limit State of Serviceability ensures satisfactory everyday function, preventing excessive deflection that could crack plaster, limiting surface crack widths to prevent rebar corrosion, and controlling dynamic vibrations for human comfort.'
   },
   {
-    id: 'q_beh_02',
-    role: 'Software Engineer',
-    category: 'Behavioral & Leadership',
-    difficulty: 'Intermediate',
-    questionText: 'Tell me about a time when you had a strong technical disagreement with a teammate or lead. How did you handle the situation and reach an alignment?',
+    id: 'q_civil_02',
+    department: 'CIVIL',
+    departmentName: 'Civil Engineering',
+    role: 'Geotechnical & Foundation Engineer',
+    category: 'Geotechnical & Soil Mechanics',
+    difficulty: 'Advanced',
+    questionText: 'What is Terzaghi Bearing Capacity Theory for shallow foundations? Explain the three terms in Terzaghi equation: cohesion (c), surcharge (q), and unit weight (gamma).',
     expectedKeypoints: [
-      'STAR methodology with objective, professional composure',
-      'Focus on objective data, benchmarks, and tradeoffs rather than personal ego',
-      'Willingness to listen actively and understand the other perspective',
-      'Ran proof-of-concept (PoC) or A/B experiment to gather empirical evidence',
-      'Successful team alignment and post-decision commitment'
+      'Equation: q_ult = c * N_c + q * N_q + 0.5 * gamma * B * N_gamma',
+      'c * N_c represents the shear strength contribution from soil cohesion (clay/fine-grained soil)',
+      'q * N_q represents the surcharge contribution from soil overburden above foundation level (q = gamma * D_f)',
+      '0.5 * gamma * B * N_gamma represents the self-weight resistance of soil wedge beneath foundation width B',
+      'N_c, N_q, and N_gamma are dimensionless bearing capacity factors dependent solely on soil internal friction angle (phi)'
     ],
-    requiredKeywords: ['disagreement', 'teammate', 'compromise', 'data', 'benchmark', 'star', 'alignment', 'listen', 'proof of concept', 'teamwork'],
-    modelAnswer: 'In a microservices architecture redesign, a senior engineer advocated for synchronous REST communication between our analytics service and main billing service, while I proposed asynchronous event messaging using Apache Kafka to prevent cascading failures. Instead of arguing theoretical points, I scheduled a design review and built a small proof-of-concept benchmarking both approaches under simulated network latency. The benchmark demonstrated that under peak load, the synchronous REST calls increased p99 response times by 320% and caused timeout retries. We walked through the trade-offs together, agreed on the asynchronous pub/sub model with a dead-letter queue, and delivered the pipeline without production incidents.'
+    requiredKeywords: ['terzaghi', 'bearing capacity', 'shallow foundation', 'cohesion', 'surcharge', 'friction angle', 'soil mechanics', 'foundation width', 'overburden'],
+    modelAnswer: 'Karl Terzaghi bearing capacity equation determines the ultimate load-bearing capacity (q_ult) of shallow strip footings before shear failure occurs in the supporting ground: q_ult = c * N_c + q * N_q + 0.5 * gamma * B * N_gamma. The first term, c * N_c, represents the shear strength derived from internal soil cohesion (critical in cohesive clays). The second term, q * N_q, captures the surcharge effect of the soil overburden weight above foundation footing depth (q = gamma * D_f), which provides confinement pressure against upward soil heave. The third term, 0.5 * gamma * B * N_gamma, accounts for the gravitational self-weight and frictional resistance of the failure wedge directly beneath footing width B (vital in granular sands). N_c, N_q, and N_gamma are dimensionless bearing capacity factors determined by the internal friction angle phi.'
+  },
+
+  // =========================================================================
+  // 7. HR, BEHAVIORAL & STAR LEADERSHIP (UNIVERSAL ACROSS ALL DEPARTMENTS)
+  // =========================================================================
+  {
+    id: 'q_hr_01',
+    department: 'COMMON',
+    departmentName: 'All Engineering Disciplines',
+    role: 'Engineering Candidate',
+    category: 'HR & Behavioral Leadership (STAR)',
+    difficulty: 'Intermediate',
+    questionText: 'Describe a situation where a major engineering component or project phase you developed failed unexpectedly. How did you diagnose the root cause and resolve it under pressure?',
+    expectedKeypoints: [
+      'Situation: Clear context regarding a critical technical failure, deployment outage, or hardware test breakdown',
+      'Task: Responsibility for containing impact and identifying root cause under tight deadlines',
+      'Action: Systematic debugging, log/telemetry analysis, unit isolation, team communication, and implementing a hotfix',
+      'Result: Concrete outcome, post-mortem root-cause documentation, and permanent preventive regression testing added'
+    ],
+    requiredKeywords: ['star', 'situation', 'task', 'action', 'result', 'failure', 'root cause', 'debugging', 'post-mortem', 'prevention'],
+    modelAnswer: 'Using the STAR framework: During my final semester capstone project, our hardware integration test failed 48 hours before an industry audit because an SPI communication bus was intermittently locking up. As lead firmware engineer, I stayed calm and connected an oscilloscope and logic analyzer to capture real-time clock and data waveforms. I discovered that a high-current motor driver on the same PCB was inducing electromagnetic ground bounce on the shared bus. I immediately isolated the SPI clock line with an optocoupler and rewrote the driver to add an automatic bus timeout watchdog. The system passed 500 consecutive test cycles without error, achieving a 98% audit score. I documented the noise mitigation guidelines for future batch revisions.'
   },
   {
-    id: 'q_beh_03',
-    role: 'Software Engineer',
-    category: 'Behavioral & Leadership',
+    id: 'q_hr_02',
+    department: 'COMMON',
+    departmentName: 'All Engineering Disciplines',
+    role: 'Engineering Candidate',
+    category: 'HR & Behavioral Leadership (STAR)',
     difficulty: 'Intermediate',
-    questionText: 'Describe how you manage tight deadlines when project scope is unclear or technical requirements change unexpectedly.',
+    questionText: 'How do you handle a significant technical disagreement with a team member or senior engineer regarding system design or methodology?',
     expectedKeypoints: [
-      'STAR structure demonstrating prioritization and communication',
-      'Proactive stakeholder alignment and clarifying minimal viable scope (MVP)',
-      'Decomposing complex tasks into agile milestones and identifying critical path',
-      'Transparent status updates and managing technical debt responsibly',
-      'Delivered core functional value on time without compromising quality'
+      'Focus on objective data, measurable trade-offs, and project goals rather than personal ego',
+      'Active listening to thoroughly understand the peer rationale and constraints',
+      'Building a lightweight prototype, benchmark, or proof-of-concept (PoC) to validate both hypotheses empirically',
+      'Aligning with team standards and maintaining complete commitment once a final decision is made'
     ],
-    requiredKeywords: ['deadline', 'priority', 'scope', 'mvp', 'communication', 'stakeholder', 'agile', 'timeline', 'star', 'tradeoff'],
-    modelAnswer: 'Two weeks before our product launch, stakeholders requested an unexpected feature: real-time CSV analytics exports with multi-factor authentication. With our timeline fixed, I immediately organized a scope triage meeting. Using an MoSCoW prioritization matrix, I separated the "Must-Haves" from "Nice-to-Haves". I proposed delivering the essential core analytics and auth verification in phase 1, while scheduling advanced export formatting for a patch release five days post-launch. I broke the critical path into daily deliverable milestones, maintained transparent daily updates in standup, and delivered the core release on schedule with zero critical defects.'
+    requiredKeywords: ['disagreement', 'compromise', 'proof of concept', 'benchmark', 'active listening', 'data-driven', 'collaboration', 'alignment'],
+    modelAnswer: 'When technical disagreements arise, I decouple the technical problem from personal ego and anchor the discussion in objective metrics like latency, scalability, maintainability, and delivery timelines. For instance, when debating between using a relational database versus a document store for our project analytics module, my colleague favored MongoDB for rapid schema flexibility, while I advocated PostgreSQL for relational integrity. Instead of arguing theoretically, I built a quick benchmark measuring query latency for our target reporting queries. The data showed PostgreSQL with JSONB indexing gave us both schema agility and 4x faster joins. We reviewed the data together, agreed on Postgres, and shipped on time.'
+  },
+  {
+    id: 'q_hr_03',
+    department: 'COMMON',
+    departmentName: 'All Engineering Disciplines',
+    role: 'Engineering Candidate',
+    category: 'HR & Behavioral Leadership (STAR)',
+    difficulty: 'Intermediate',
+    questionText: 'Tell me about a time you had to meet a tight deadline with incomplete specifications or shifting requirements. How did you prioritize tasks and deliver quality work?',
+    expectedKeypoints: [
+      'Deconstructed the project into Must-Have (MVP) vs Nice-to-Have deliverables using MoSCoW prioritization',
+      'Proactively communicated with stakeholders to clarify ambiguities and confirm critical assumptions',
+      'Maintained modular architecture and automated testing to avoid technical debt during rapid iteration',
+      'Delivered core functionality on schedule with clean documentation for subsequent phases'
+    ],
+    requiredKeywords: ['prioritization', 'tight deadline', 'mvp', 'ambiguity', 'communication', 'trade-offs', 'quality', 'agile'],
+    modelAnswer: 'During our hackathon championship, our problem statement parameters were revised with only 12 hours remaining before jury presentation. I gathered my team to perform MoSCoW prioritization, isolating the core end-to-end user workflow that demonstrated maximum impact while deferring secondary cosmetic features. I established regular 2-hour mini-syncs to verify interface compatibility across our frontend and backend modules. By adhering to test-driven design for critical algorithms and maintaining open communication, we delivered a robust working MVP that won first place for system reliability and real-world execution.'
   }
 ];
+
+// Helper to normalize department strings for flexible matching
+export function normalizeDeptCode(deptString) {
+  if (!deptString) return 'ECE';
+  const s = deptString.toUpperCase();
+  if (s.includes('ELECTRONIC') || s.includes('ECE') || s.includes('COMMUNICATION')) return 'ECE';
+  if (s.includes('COMPUTER') || s.includes('CSE') || s.includes('SOFTWARE')) return 'CSE';
+  if (s.includes('AI') || s.includes('ARTIFICIAL') || s.includes('DATA SCIENCE') || s.includes('MACHINE LEARNING')) return 'AI & ML';
+  if (s.includes('ELECTRICAL') || s.includes('EEE') || s.includes('POWER')) return 'EEE';
+  if (s.includes('MECHANICAL') || s.includes('MECH')) return 'MECH';
+  if (s.includes('CIVIL') || s.includes('STRUCT')) return 'CIVIL';
+  if (s.includes('INFO') || s.includes('IT')) return 'CSE';
+  return 'ECE';
+}

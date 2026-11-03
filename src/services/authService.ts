@@ -38,14 +38,14 @@ export const authService = {
     return defaultStudent;
   },
 
-  async login(role: UserRole, email?: string, password?: string, name?: string): Promise<User> {
+  async login(role: UserRole, email?: string, password?: string, name?: string, department?: string): Promise<User> {
     const loginIdent = (email || name || 'ilamaran@college.edu').trim();
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginIdent, password, role, username: name })
+        body: JSON.stringify({ email: loginIdent, password, role, username: name, department })
       });
 
       if (res.ok) {
@@ -73,16 +73,39 @@ export const authService = {
       email: loginIdent.includes('@') ? loginIdent : `${loginIdent.toLowerCase()}@college.edu`,
       role,
       avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=173b63,2f9c95`,
-      department: 'Computer Science & AI',
+      department: department || 'Electronics & Communication Engineering (ECE)',
       institution: 'Apex Institute of Technology & Sciences',
       registerNumber: `2024${Math.floor(1000 + Math.random() * 9000)}`,
       semester: '6th Semester',
-      gpa: 3.88,
-      title: role === 'tutor' ? 'Associate Professor & Research Chair' : undefined
+      gpa: 3.88
     };
 
     ApiService.setItem(CURRENT_USER_KEY, user);
     return user;
+  },
+
+  async updateProfile(updates: Partial<User>): Promise<User> {
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.user) {
+          ApiService.setItem(CURRENT_USER_KEY, json.user);
+          return json.user;
+        }
+      }
+    } catch (e) {
+      console.warn('Backend updateProfile failed, updating local state', e);
+    }
+
+    const current = await this.getCurrentUser();
+    const updated = { ...current, ...updates };
+    ApiService.setItem(CURRENT_USER_KEY, updated);
+    return updated;
   },
 
   async register(name: string, email: string, department: string, password?: string, role: UserRole = 'student'): Promise<User> {

@@ -6,8 +6,9 @@ interface AuthContextType {
   user: User;
   role: UserRole;
   isLoading: boolean;
-  login: (role: UserRole, email?: string, password?: string, name?: string) => Promise<User>;
+  login: (role: UserRole, email?: string, password?: string, name?: string, department?: string) => Promise<User>;
   register: (name: string, email: string, department: string, password?: string, role?: UserRole) => Promise<User>;
+  updateUser: (updates: Partial<User>) => Promise<User>;
   switchRole: (role: UserRole) => Promise<User>;
   logout: () => Promise<void>;
   notificationCount: number;
@@ -20,7 +21,7 @@ const defaultUser: User = {
   email: 'ilamaran@college.edu',
   role: 'student',
   avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Ilamaran&backgroundColor=173b63,2f9c95',
-  department: 'Computer Science & AI',
+  department: 'Electronics & Communication Engineering (ECE)',
   institution: 'Apex Institute of Technology & Sciences',
   registerNumber: '20240982',
   semester: '6th Semester',
@@ -43,13 +44,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, []);
 
-  const login = async (newRole: UserRole, email?: string, password?: string, name?: string) => {
+  const login = async (newRole: UserRole, email?: string, password?: string, name?: string, department?: string) => {
     setIsLoading(true);
     try {
-      const loggedUser = await authService.login(newRole, email, password, name);
+      const loggedUser = await authService.login(newRole, email, password, name, department);
       setUser(loggedUser);
       setIsLoading(false);
       return loggedUser;
+    } catch (err) {
+      setIsLoading(false);
+      throw err;
+    }
+  };
+
+  const updateUser = async (updates: Partial<User>) => {
+    setIsLoading(true);
+    try {
+      const updated = await authService.updateProfile(updates);
+      setUser(updated);
+      setIsLoading(false);
+      return updated;
     } catch (err) {
       setIsLoading(false);
       throw err;
@@ -106,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        updateUser,
         switchRole,
         logout,
         notificationCount,
