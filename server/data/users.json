@@ -22,5 +22,29 @@
     "registerNumber": "20248137",
     "semester": "6th Semester",
     "gpa": 3.85
+  },
+  {
+    "id": "usr_1793681903622",
+    "name": "maran",
+    "email": "ilamaran040107@gmail.com",
+    "role": "student",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=maran&backgroundColor=173b63,2f9c95,7567c7",
+    "department": "Computer Science & AI",
+    "institution": "Apex Institute of Technology & Sciences",
+    "registerNumber": "20249839",
+    "semester": "6th Semester",
+    "gpa": 3.85
+  },
+  {
+    "id": "usr_1793695531958",
+    "name": "Alex Chen",
+    "email": "alex.chen@college.edu",
+    "role": "student",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Chen&backgroundColor=173b63,2f9c95,7567c7",
+    "department": "Computer Science & AI",
+    "institution": "Apex Institute of Technology & Sciences",
+    "registerNumber": "20243602",
+    "semester": "6th Semester",
+    "gpa": 3.85
   }
 ]

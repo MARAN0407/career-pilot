@@ -9,9 +9,17 @@ const HISTORY_KEY = 'interview_history_list';
 const LATEST_REPORT_KEY = 'latest_interview_report';
 
 export const interviewService = {
-  async getQuestions(type: InterviewType = 'camera'): Promise<InterviewQuestion[]> {
+  async getQuestions(
+    type: InterviewType = 'camera', 
+    category?: string, 
+    count: number = 5
+  ): Promise<InterviewQuestion[]> {
     try {
-      const res = await fetch('/api/interview/questions');
+      const queryParams = new URLSearchParams();
+      if (category && category !== 'All') queryParams.append('category', category);
+      if (count) queryParams.append('count', count.toString());
+
+      const res = await fetch(`/api/interview/questions?${queryParams.toString()}`);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.questions)) {
@@ -19,18 +27,18 @@ export const interviewService = {
         }
       }
     } catch (err) {
-      console.warn('Backend /api/interview/questions failed, using local questions', err);
+      console.warn('Backend /api/interview/questions failed, using local questions pool', err);
     }
 
-    // Fallback benchmark questions
-    const fallback: InterviewQuestion[] = [
+    // Comprehensive Fallback Pool of diverse questions
+    const fallbackPool: InterviewQuestion[] = [
       {
-        id: 'q_01',
+        id: 'q_ml_01',
         questionNumber: 1,
         totalQuestions: 5,
         role: 'AI / Machine Learning Engineer',
         difficulty: 'Intermediate',
-        category: 'Technical',
+        category: 'AI & Machine Learning',
         questionText: 'Explain the difference between L1 (Lasso) and L2 (Ridge) regularization and why L1 produces sparsity in model weights.',
         expectedKeypoints: [
           'L1 adds sum of absolute weights penalty (|w|), L2 adds sum of squared weights penalty (w^2)',
@@ -39,12 +47,12 @@ export const interviewService = {
         ]
       },
       {
-        id: 'q_02',
+        id: 'q_ml_02',
         questionNumber: 2,
         totalQuestions: 5,
         role: 'AI / Machine Learning Engineer',
         difficulty: 'Intermediate',
-        category: 'Technical',
+        category: 'AI & Machine Learning',
         questionText: 'Explain the vanishing gradient problem in deep neural networks when using Sigmoid activation functions. How does ReLU or Batch Normalization solve it?',
         expectedKeypoints: [
           'Sigmoid derivative peaks at 0.25; chaining multiple layers causes exponential decay toward 0',
@@ -53,12 +61,41 @@ export const interviewService = {
         ]
       },
       {
-        id: 'q_03',
+        id: 'q_ml_03',
         questionNumber: 3,
         totalQuestions: 5,
         role: 'AI / Machine Learning Engineer',
         difficulty: 'Advanced',
-        category: 'System Design',
+        category: 'AI & Machine Learning',
+        questionText: 'How do residual connections (skip connections) in ResNet architectures prevent degradation in very deep networks?',
+        expectedKeypoints: [
+          'Skip connections learn residual mapping H(x) = F(x) + x',
+          'Allows gradients to backpropagate directly through the identity shortcut (+1 derivative)',
+          'Reduces optimization degradation where deeper models had higher training errors'
+        ]
+      },
+      {
+        id: 'q_genai_01',
+        questionNumber: 4,
+        totalQuestions: 5,
+        role: 'AI / Machine Learning Engineer',
+        difficulty: 'Advanced',
+        category: 'Generative AI & LLMs',
+        questionText: 'Describe the complete architecture of a Retrieval-Augmented Generation (RAG) system. How do chunking, vector embedding, similarity search, and reranking work together?',
+        expectedKeypoints: [
+          'Document Ingestion & Chunking with overlap',
+          'Vector Embedding using embedding models and HNSW vector index',
+          'Cosine similarity search and Cross-encoder reranking',
+          'Prompt injection to generate verifiable answers with source citations'
+        ]
+      },
+      {
+        id: 'q_genai_03',
+        questionNumber: 5,
+        totalQuestions: 5,
+        role: 'AI / Machine Learning Engineer',
+        difficulty: 'Advanced',
+        category: 'Generative AI & LLMs',
         questionText: 'How does self-attention in the Transformer architecture compute relationships between tokens? Describe the Query, Key, and Value dot-product calculation.',
         expectedKeypoints: [
           'Attention(Q, K, V) = softmax((Q * K^T) / sqrt(d_k)) * V',
@@ -67,27 +104,41 @@ export const interviewService = {
         ]
       },
       {
-        id: 'q_04',
-        questionNumber: 4,
+        id: 'q_sys_01',
+        questionNumber: 6,
         totalQuestions: 5,
-        role: 'AI / Machine Learning Engineer',
+        role: 'Software Engineer',
         difficulty: 'Intermediate',
-        category: 'Problem Solving',
-        questionText: 'If you have an imbalanced dataset where the positive class is only 1% of total samples, why is Accuracy a misleading metric? What metrics would you use instead?',
+        category: 'System Design & Backend',
+        questionText: 'How do database indexes (such as B-Tree and Hash indexes) work internally, and what are the tradeoffs of indexing every column?',
         expectedKeypoints: [
-          'A trivial classifier predicting majority class gets 99% accuracy while failing completely',
-          'Use Precision, Recall, F1-Score, and Precision-Recall AUC (PR-AUC)',
-          'Consider class weights, focal loss, or threshold adjustment'
+          'B-Tree indexes maintain balanced multi-way tree supporting range queries in O(log N)',
+          'Improves read performance but adds overhead to write operations (INSERT, UPDATE, DELETE)',
+          'Consumes extra RAM and storage for secondary index trees'
         ]
       },
       {
-        id: 'q_05',
-        questionNumber: 5,
+        id: 'q_dsa_02',
+        questionNumber: 7,
         totalQuestions: 5,
-        role: 'AI / Machine Learning Engineer',
+        role: 'Software Engineer',
         difficulty: 'Intermediate',
-        category: 'Behavioral',
-        questionText: 'Describe a situation where a machine learning model you built failed to perform well in validation or testing. How did you debug and resolve the issue?',
+        category: 'Algorithms & Data Structures',
+        questionText: 'Describe the design and implementation of an LRU (Least Recently Used) Cache with O(1) get and put time complexity.',
+        expectedKeypoints: [
+          'Hash Map paired with Doubly Linked List',
+          'Hash map stores key to node pointers for O(1) access',
+          'Doubly linked list moves accessed nodes to Head and evicts Tail node when capacity is exceeded'
+        ]
+      },
+      {
+        id: 'q_beh_01',
+        questionNumber: 8,
+        totalQuestions: 5,
+        role: 'Software Engineer',
+        difficulty: 'Intermediate',
+        category: 'Behavioral & Leadership',
+        questionText: 'Describe a situation where a machine learning model or software system you built failed to perform well in validation or production. How did you debug and resolve the issue?',
         expectedKeypoints: [
           'Structured STAR response (Situation, Task, Action, Result)',
           'Data leakage investigation or train/val distribution shift check',
@@ -95,7 +146,14 @@ export const interviewService = {
         ]
       }
     ];
-    return fallback;
+
+    // Shuffle and slice requested count
+    const shuffled = [...fallbackPool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count).map((q, i) => ({
+      ...q,
+      questionNumber: i + 1,
+      totalQuestions: count
+    }));
   },
 
   async getLatestReport(): Promise<InterviewResultScorecard> {

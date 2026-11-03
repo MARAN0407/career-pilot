@@ -126,20 +126,13 @@ export const StudentLoginPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-2 text-[11px]">
+            <div className="flex items-center justify-center pt-2 text-xs">
               <button
                 type="button"
                 onClick={() => navigate('/register')}
-                className="text-[#3B82C4] font-semibold hover:underline"
+                className="text-[#3B82C4] font-bold hover:underline flex items-center gap-1 cursor-pointer"
               >
-                New student? Create Account →
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/login/tutor')}
-                className="text-slate-500 hover:text-slate-800"
-              >
-                Tutor Portal →
+                Don't have an account? Register Student Account →
               </button>
             </div>
           </div>

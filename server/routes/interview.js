@@ -47,13 +47,49 @@ function saveReport(report) {
   }
 }
 
-// GET /api/interview/questions
+// Utility: Fisher-Yates array shuffle
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// GET /api/interview/questions?category=...&count=...&difficulty=...
 router.get('/questions', (req, res) => {
-  // Map out questions for the candidate studio (without exposing the hidden model answers directly during the test)
-  const candidateQuestions = interviewQuestions.map(q => ({
+  const { category, count, difficulty } = req.query;
+
+  let pool = [...interviewQuestions];
+
+  // Filter by category if requested
+  if (category && category !== 'All' && category !== 'Mixed') {
+    pool = pool.filter(q => q.category.toLowerCase() === category.toLowerCase());
+  }
+
+  // Filter by difficulty if requested
+  if (difficulty && difficulty !== 'All') {
+    pool = pool.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+  }
+
+  // If filtered pool is too small, fallback to full pool
+  if (pool.length === 0) {
+    pool = [...interviewQuestions];
+  }
+
+  // Shuffle pool so students get fresh, different questions every session!
+  const shuffled = shuffleArray(pool);
+
+  // Take requested count (default 5, min 3, max 15)
+  const questionCount = Math.min(15, Math.max(3, parseInt(count, 10) || 5));
+  const selected = shuffled.slice(0, questionCount);
+
+  // Map out questions with dynamic numbering
+  const candidateQuestions = selected.map((q, idx) => ({
     id: q.id,
-    questionNumber: q.questionNumber,
-    totalQuestions: q.totalQuestions,
+    questionNumber: idx + 1,
+    totalQuestions: selected.length,
     role: q.role,
     difficulty: q.difficulty,
     category: q.category,
@@ -61,7 +97,12 @@ router.get('/questions', (req, res) => {
     expectedKeypoints: q.expectedKeypoints
   }));
 
-  res.json({ success: true, questions: candidateQuestions });
+  res.json({
+    success: true,
+    category: category || 'Mixed Technical & Systems',
+    totalPoolSize: interviewQuestions.length,
+    questions: candidateQuestions
+  });
 });
 
 // POST /api/interview/evaluate
@@ -96,29 +137,19 @@ router.get('/latest', (req, res) => {
   // Fallback initial benchmark evaluation
   const initialBenchmark = evaluateInterviewAnswers('camera', [
     {
-      questionId: 'q_01',
+      questionId: interviewQuestions[0].id,
       question: interviewQuestions[0].questionText,
       answerText: interviewQuestions[0].modelAnswer
     },
     {
-      questionId: 'q_02',
+      questionId: interviewQuestions[1].id,
       question: interviewQuestions[1].questionText,
       answerText: interviewQuestions[1].modelAnswer
     },
     {
-      questionId: 'q_03',
+      questionId: interviewQuestions[2].id,
       question: interviewQuestions[2].questionText,
       answerText: interviewQuestions[2].modelAnswer
-    },
-    {
-      questionId: 'q_04',
-      question: interviewQuestions[3].questionText,
-      answerText: interviewQuestions[3].modelAnswer
-    },
-    {
-      questionId: 'q_05',
-      question: interviewQuestions[4].questionText,
-      answerText: interviewQuestions[4].modelAnswer
     }
   ]);
 

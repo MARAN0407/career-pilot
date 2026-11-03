@@ -202,7 +202,8 @@ export interface InterviewQuestion {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   questionText: string;
   expectedKeypoints: string[];
-  category: 'Technical' | 'Behavioral' | 'System Design' | 'Problem Solving';
+  category: string;
+  idealDuration?: string;
 }
 
 export interface InterviewResultScorecard {

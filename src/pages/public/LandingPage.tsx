@@ -42,17 +42,17 @@ export const LandingPage: React.FC = () => {
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate('/login/tutor')}
+            onClick={() => navigate('/register')}
             className="hidden sm:flex px-4 py-2 rounded-xl text-xs font-bold text-[#173B63] hover:bg-slate-100 transition"
           >
-            Tutor & Faculty Login
+            Create Student Account
           </button>
           <button
             onClick={() => navigate('/login/student')}
             className="px-5 py-2.5 rounded-xl bg-[#173B63] hover:bg-[#204B7D] text-white text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer"
           >
             <GraduationCap className="w-4 h-4 text-teal-300" />
-            <span>Student Portal Login</span>
+            <span>Sign In to Student Portal</span>
           </button>
         </div>
       </header>
@@ -72,7 +72,7 @@ export const LandingPage: React.FC = () => {
           An AI-powered learning and career platform connecting Google Classroom-style coursework, personalized skill development, ATS resume audits, and realistic AI mock interview simulations.
         </p>
 
-        {/* Dual Login Callout Buttons */}
+        {/* Student Portal Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
           <button
             onClick={() => navigate('/login/student')}
@@ -84,11 +84,11 @@ export const LandingPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => navigate('/login/tutor')}
+            onClick={() => navigate('/register')}
             className="px-8 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-[#173B63] border border-slate-300 text-sm font-bold shadow-md flex items-center gap-2.5 transition transform hover:-translate-y-0.5 cursor-pointer"
           >
-            <Users className="w-5 h-5 text-[#3B82C4]" />
-            <span>Enter Tutor & Faculty Portal</span>
+            <Sparkles className="w-5 h-5 text-[#3B82C4]" />
+            <span>Create Student Account</span>
           </button>
         </div>
 
@@ -178,7 +178,7 @@ export const LandingPage: React.FC = () => {
 
           <div className="flex items-center gap-6">
             <button onClick={() => navigate('/login/student')} className="hover:text-white transition">Student Login</button>
-            <button onClick={() => navigate('/login/tutor')} className="hover:text-white transition">Tutor Login</button>
+            <button onClick={() => navigate('/register')} className="hover:text-white transition">Register</button>
             <span className="text-slate-500">© 2026 Career Pilot Platform</span>
           </div>
         </div>

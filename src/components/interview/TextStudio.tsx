@@ -25,7 +25,7 @@ export const TextStudio: React.FC<TextStudioProps> = ({
   const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; feedback?: string }>>([
     {
       sender: 'ai',
-      text: `Hello ${candidateName}! Welcome to your AI Technical Chat Assessment. I will evaluate your knowledge in Neural Architectures and Machine Learning.\n\nHere is Question 1:\n**${questions[0]?.questionText}**`
+      text: `Hello ${candidateName}! Welcome to your AI Technical Chat Assessment. I will evaluate your knowledge in ${questions[0]?.category || 'Core Computer Science and Engineering'}.\n\nHere is Question 1:\n**${questions[0]?.questionText}**`
     }
   ]);
 

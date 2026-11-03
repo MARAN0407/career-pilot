@@ -51,7 +51,7 @@ export function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Navigate to="/login/student" replace />} />
             <Route path="/login/student" element={<StudentLoginPage />} />
-            <Route path="/login/tutor" element={<TutorLoginPage />} />
+            <Route path="/login/tutor" element={<Navigate to="/login/student" replace />} />
             <Route path="/register" element={<RegisterPage />} />
 
             {/* Student Portal */}
@@ -77,24 +77,9 @@ export function App() {
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 
-            {/* Tutor & Faculty Portal */}
-            <Route path="/tutor" element={<TutorLayout />}>
-              <Route index element={<Navigate to="/tutor/dashboard" replace />} />
-              <Route path="dashboard" element={<TutorDashboard />} />
-              <Route path="classes" element={<TutorClassroomPage />} />
-              <Route path="students" element={<TutorStudentsPage />} />
-              <Route path="assignments" element={<TutorAssignmentsPage />} />
-              <Route path="materials" element={<TutorKnowledgeBasePage />} />
-              <Route path="announcements" element={<TutorClassroomPage />} />
-              <Route path="analytics" element={<TutorAnalyticsPage />} />
-              <Route path="interview-analytics" element={<TutorAnalyticsPage />} />
-              <Route path="student-progress" element={<TutorStudentsPage />} />
-              <Route path="knowledge-base" element={<TutorKnowledgeBasePage />} />
-              <Route path="question-bank" element={<TutorKnowledgeBasePage />} />
-              <Route path="ai-insights" element={<TutorAnalyticsPage />} />
-              <Route path="profile" element={<LinkedInProfilePage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
+            {/* Redirect legacy tutor paths to student dashboard */}
+            <Route path="/tutor" element={<Navigate to="/student/dashboard" replace />} />
+            <Route path="/tutor/*" element={<Navigate to="/student/dashboard" replace />} />
 
             {/* Catch-all fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
