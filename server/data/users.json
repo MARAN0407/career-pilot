@@ -5,7 +5,7 @@
     "email": "ilamaran@college.edu",
     "role": "student",
     "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Ilamaran&backgroundColor=173b63,2f9c95,7567c7",
-    "department": "Electrical and Electronics Engineering (EEE)",
+    "department": "Agricultural Engineering",
     "institution": "Apex Institute of Technology & Sciences",
     "registerNumber": "20249116",
     "semester": "6th Semester",
@@ -53,9 +53,21 @@
     "email": "admin@mplads.gov.in",
     "role": "student",
     "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=vghch&backgroundColor=173b63,2f9c95,7567c7",
-    "department": "Electronics & Communication",
+    "department": "Biotechnology",
     "institution": "Apex Institute of Technology & Sciences",
     "registerNumber": "20243581",
+    "semester": "6th Semester",
+    "gpa": 3.85
+  },
+  {
+    "id": "usr_1793728067510",
+    "name": "Vugfut",
+    "email": "vugfut@college.edu",
+    "role": "student",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Vugfut&backgroundColor=173b63,2f9c95,7567c7",
+    "department": "Biomedical Engineering",
+    "institution": "Apex Institute of Technology & Sciences",
+    "registerNumber": "20243246",
     "semester": "6th Semester",
     "gpa": 3.85
   }

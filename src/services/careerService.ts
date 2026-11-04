@@ -71,51 +71,69 @@ const defaultResumeAnalysis: ResumeAnalysisResult = {
   ]
 };
 
+import { getDepartmentData } from './departmentIntelligence';
+
 export const careerService = {
-  async getCareerRoles(): Promise<CareerRole[]> {
-    await delay(100);
-    return ApiService.getItem<CareerRole[]>(CAREER_ROLES_KEY, mockCareerRoles);
+  async getCareerRoles(department?: string): Promise<CareerRole[]> {
+    await delay(50);
+    const data = getDepartmentData(department);
+    return data.roles;
   },
 
-  async getSkillGaps(): Promise<SkillGapItem[]> {
-    await delay(100);
-    return ApiService.getItem<SkillGapItem[]>(SKILL_GAPS_KEY, mockSkillGaps);
+  async getSkillGaps(department?: string): Promise<SkillGapItem[]> {
+    await delay(50);
+    const data = getDepartmentData(department);
+    return data.skillGaps;
   },
 
-  async getJobListings(): Promise<JobListing[]> {
-    await delay(100);
-    return ApiService.getItem<JobListing[]>(JOBS_KEY, mockJobListings);
+  async getJobListings(department?: string): Promise<JobListing[]> {
+    await delay(50);
+    const data = getDepartmentData(department);
+    return data.jobs;
   },
 
   async getLearningCourses(): Promise<LearningCourse[]> {
-    await delay(100);
+    await delay(50);
     return ApiService.getItem<LearningCourse[]>(LEARNING_COURSES_KEY, mockLearningCourses);
   },
 
-  async getRoadmap(): Promise<RoadmapMilestone[]> {
-    await delay(100);
-    return ApiService.getItem<RoadmapMilestone[]>(ROADMAP_KEY, mockRoadmapMilestones);
+  async getRoadmap(department?: string): Promise<RoadmapMilestone[]> {
+    await delay(50);
+    const data = getDepartmentData(department);
+    return data.roadmap;
   },
 
-  async getResumeAnalysis(): Promise<ResumeAnalysisResult> {
+  async getSuggestedQuestions(department?: string): Promise<string[]> {
+    const data = getDepartmentData(department);
+    return data.suggestedQuestions;
+  },
+
+  async getResumeAnalysis(department?: string): Promise<ResumeAnalysisResult | null> {
     try {
-      const res = await fetch('/api/resume/latest');
+      const url = department 
+        ? `/api/resume/latest?department=${encodeURIComponent(department)}`
+        : '/api/resume/latest';
+      const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
-          ApiService.setItem(RESUME_DATA_KEY, json.data);
-          return json.data;
+          if (!department || !json.data.department || json.data.department === department) {
+            return json.data;
+          }
         }
       }
     } catch (err) {
-      console.warn('Backend /api/resume/latest fetch failed, using cached state', err);
+      console.warn('Backend /api/resume/latest fetch failed', err);
     }
-    return ApiService.getItem<ResumeAnalysisResult>(RESUME_DATA_KEY, defaultResumeAnalysis);
+    return null;
   },
 
-  async analyzeNewResume(file: File): Promise<ResumeAnalysisResult> {
+  async analyzeNewResume(file: File, department?: string): Promise<ResumeAnalysisResult> {
     const formData = new FormData();
     formData.append('resumeFile', file);
+    if (department) {
+      formData.append('department', department);
+    }
 
     const res = await fetch('/api/resume/analyze', {
       method: 'POST',
@@ -124,21 +142,16 @@ export const careerService = {
 
     const json = await res.json();
 
-    // Check if backend rejected it because it is NOT a resume!
-    if (!res.ok || !json.isResume) {
-      const error: any = new Error(json.error || 'The uploaded file does not appear to be a valid resume.');
-      error.isResume = false;
+    if (!res.ok || !json.success || !json.data) {
+      const error: any = new Error(json.error || 'Please upload a valid resume.');
+      error.isResume = json.isResume;
+      error.departmentMismatch = json.departmentMismatch;
       error.missingSections = json.missingSections || [];
       error.detectedSections = json.detectedSections || [];
       error.filename = file.name;
       throw error;
     }
 
-    if (json.data) {
-      ApiService.setItem(RESUME_DATA_KEY, json.data);
-      return json.data;
-    }
-
-    throw new Error('Could not parse resume data');
+    return json.data;
   }
 };

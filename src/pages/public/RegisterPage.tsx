@@ -47,7 +47,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="e.g. Ilamaran"
+                placeholder="Enter your full name"
                 className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3B82C4]"
               />
             </div>
@@ -62,7 +62,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="ilamaran@college.edu"
+                placeholder="name@college.edu"
                 className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3B82C4]"
               />
             </div>

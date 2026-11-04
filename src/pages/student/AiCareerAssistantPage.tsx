@@ -1,29 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Send, User, Sparkles, Copy, Check, RotateCcw, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { careerService } from '../../services/careerService';
+import { DEPARTMENT_INTELLIGENCE } from '../../services/departmentIntelligence';
+
+interface ChatMessage {
+  sender: 'user' | 'ai';
+  text: string;
+}
 
 export const AiCareerAssistantPage: React.FC = () => {
   const { user } = useAuth();
-  const userName = user?.name || 'Ilamaran';
+  const userName = user?.name || 'Engineering Student';
+  const department = user?.department || 'Computer Science and Engineering (CSE)';
 
-  const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
-    {
-      sender: 'ai',
-      text: `Hello ${userName}! I'm your Career Accelerator AI Mentor. I have access to your academic coursework, your resume ATS score, and your latest department mock interview analytics.\n\nHow can I assist your career and interview preparation today?`
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const navigate = useNavigate();
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const suggestedPrompts = [
-    "What skills should I learn for an AI Engineer role?",
-    "Review my resume and identify missing keywords.",
-    "Give me an ML interview question on Backpropagation.",
-    "Create a 3-month learning roadmap for MLOps."
-  ];
+  useEffect(() => {
+    // Initialize welcome message specific to the department
+    setMessages([
+      {
+        sender: 'ai',
+        text: `Hello ${userName}! I'm your Career Accelerator AI Mentor for **${department}**.\n\nI can assist you with your department subjects, technical mock interview preparation, resume keywords, skill gap diagnostics, and career development roadmaps.\n\nHow can I help you accelerate your career today?`
+      }
+    ]);
+
+    // Load department-specific suggested questions
+    careerService.getSuggestedQuestions(department).then(setSuggestedPrompts);
+  }, [department, userName]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  // Off-topic validator
+  const isOffTopic = (query: string): boolean => {
+    const q = query.toLowerCase();
+
+    // Check for clear off-topic keywords (entertainment, recipes, sports, general trivia)
+    const offTopicKeywords = [
+      'recipe', 'cook', 'bake', 'cake', 'pizza', 'burger', 'movie', 'cinema', 
+      'hollywood', 'bollywood', 'actor', 'actress', 'song', 'lyrics', 'football match', 
+      'cricket score', 'ipl match', 'weather today', 'horoscope', 'zodiac', 'joke', 
+      'standup comedy', 'dating', 'relationship advice', 'vacation travel flight',
+      'president election politics'
+    ];
+
+    if (offTopicKeywords.some(k => q.includes(k))) {
+      return true;
+    }
+
+    // Always allowed: career, department, engineering, interview, resume, placement, subjects, skills, tech
+    const careerKeywords = [
+      'career', 'job', 'interview', 'resume', 'ats', 'skill', 'placement', 
+      'roadmap', 'salary', 'hiring', 'role', 'internship', 'question', 
+      'project', 'subject', 'exam', 'prepare', 'learning', 'improve', 
+      'feedback', 'score', 'engineering', 'study', 'course'
+    ];
+
+    // Department-specific keywords
+    const deptData = DEPARTMENT_INTELLIGENCE[department];
+    const deptSkills = deptData ? deptData.skillGaps.map(s => s.skill.toLowerCase()) : [];
+    const deptRoles = deptData ? deptData.roles.map(r => r.title.toLowerCase()) : [];
+
+    const isCareerRelated = careerKeywords.some(k => q.includes(k));
+    const isDeptSkillRelated = deptSkills.some(s => q.includes(s) || s.split(' ').some(w => w.length > 3 && q.includes(w)));
+    const isDeptRoleRelated = deptRoles.some(r => q.includes(r));
+
+    // If query has at least some engineering, technical, or career context
+    if (isCareerRelated || isDeptSkillRelated || isDeptRoleRelated || q.length < 15) {
+      return false;
+    }
+
+    // If query is long and has zero connection to engineering or career development
+    return false;
+  };
 
   const handleSend = (customPrompt?: string) => {
     const textToSend = customPrompt || input;
@@ -37,14 +94,48 @@ export const AiCareerAssistantPage: React.FC = () => {
       let reply = "";
       const lower = textToSend.toLowerCase();
 
-      if (lower.includes('skills') || lower.includes('ai engineer')) {
-        reply = "For an **AI Engineer** role at top tech companies, your profile already boasts strong foundations in **Python (92%)**, **PyTorch**, and **Neural Architectures (CS602)**.\n\nTo bridge the gap to top tier applicants:\n1. **Docker & Containerization**: Package PyTorch inference servers inside lightweight Alpine/CUDA containers.\n2. **FastAPI & Async Pipelines**: Benchmark p99 latency for high-throughput batching.\n3. **Vector Databases (ChromaDB / FAISS)**: Build multi-document RAG pipelines with reranking.\n\nWould you like me to add the Docker micro-course to your Learning Hub?";
-      } else if (lower.includes('resume') || lower.includes('keywords')) {
-        reply = "Your current resume has an **ATS score of 86/100 (Excellent)**!\n\n**High-Impact Suggestions:**\n• Add numerical performance gains: e.g., instead of *'Trained ResNet on images'*, write *'Trained 12-layer ResNet in PyTorch on 50k images achieving 94.2% top-1 accuracy with 3.2x TensorRT latency speedup'*.\n• Include missing keywords: **AWS SageMaker**, **MLOps**, **Vector Search**, and **CI/CD**.\n\nYou can run a real-time audit anytime in the **Resume AI** tab.";
-      } else if (lower.includes('interview') || lower.includes('question') || lower.includes('backprop')) {
-        reply = "Here is an intermediate Machine Learning interview question:\n\n**Question:** *'Explain why batch normalization accelerates convergence during deep neural network training, and how it behaves differently during training versus test inference.'*\n\n**Key concepts to hit:**\n1. Normalizes mini-batch mean to 0 and variance to 1, smoothing the loss landscape.\n2. Uses learnable scale $(\\gamma)$ and shift $(\\beta)$ parameters.\n3. During test inference, it utilizes running exponential moving averages rather than batch statistics.\n\nReady to test this in the **Camera Interview Studio**?";
+      // Guardrail Check
+      if (isOffTopic(textToSend)) {
+        reply = "Sorry, I can only assist with questions related to your selected department, subjects, technical skills, and career development.";
       } else {
-        reply = `Based on your academic profile and 3.88 GPA in Computer Science:\n\nTo achieve your goal regarding **"${textToSend}"**, I recommend aligning your weekly project goals with your Course 602 coursework, scheduling 2 AI Mock Interviews per month, and tracking progress in your Career Roadmap.\n\nWould you like me to generate a personalized practice session or open your skill gap matrix?`;
+        const deptData = DEPARTMENT_INTELLIGENCE[department] || DEPARTMENT_INTELLIGENCE['Computer Science and Engineering (CSE)'];
+        const topRole = deptData.roles[0];
+        const missingSkills = deptData.skillGaps.map(s => s.skill).slice(0, 3);
+
+        if (lower.includes('skill') || lower.includes('learn') || lower.includes('gap')) {
+          reply = `For top placement outcomes in **${department}**, focus on strengthening these high-demand competencies:\n\n` +
+            deptData.skillGaps.map((s, i) => `${i + 1}. **${s.skill}** (~${s.estimatedHours} hrs) - *${s.difficulty}*\n   Focus: ${s.recommendedCourse}`).join('\n\n') +
+            `\n\nTrack your progress in the **Skill Gap Analysis** dashboard.`;
+        } else if (lower.includes('resume') || lower.includes('keyword') || lower.includes('ats')) {
+          reply = `To optimize your resume for **${department}** recruitment ATS scanners:\n\n` +
+            `• **Include Core Technical Keywords:** ${deptData.roles[0]?.requiredSkills.join(', ')}.\n` +
+            `• **Quantify Outcomes:** Follow the XYZ formula (*Accomplished X as measured by Y, by doing Z*).\n` +
+            `• **High-Impact Additions:** Ensure hands-on capstone projects and lab instrumentation appear prominently.\n\n` +
+            `You can run a real-time audit anytime in the **Resume AI** tab.`;
+        } else if (lower.includes('interview') || lower.includes('question') || lower.includes('mock')) {
+          reply = `Here is a technical mock interview question tailored to **${department}**:\n\n` +
+            `**Question:** *"${deptData.suggestedQuestions[0] || 'Explain the governing engineering principles in your core domain.'}"*\n\n` +
+            `**Key Evaluation Rubric:**\n` +
+            `1. State governing physical or algorithmic laws.\n` +
+            `2. Formulate equations or practical architecture trade-offs.\n` +
+            `3. Provide real-world industry application context.\n\n` +
+            `Ready to simulate this response? Head over to the **AI Mock Interview Center**!`;
+        } else if (lower.includes('job') || lower.includes('role') || lower.includes('career') || lower.includes('salary')) {
+          reply = `In **${department}**, top predicted roles and industry packages currently include:\n\n` +
+            deptData.roles.map(r => `• **${r.title}** (Demand: ${r.marketDemand})\n  Package: ${r.salaryRange} | Match: ${r.matchScore}%\n  ${r.description}`).join('\n\n') +
+            `\n\nExplore live matched postings in the **Job Matcher** page.`;
+        } else if (lower.includes('roadmap') || lower.includes('phase') || lower.includes('stage')) {
+          reply = `Your milestone roadmap for **${department}** is structured into 3 progressive phases:\n\n` +
+            deptData.roadmap.map(m => `**Phase 0${m.order}: ${m.title}** (${m.completionPercentage}% complete)\n${m.description}\nSkills: ${m.skills.join(', ')}`).join('\n\n') +
+            `\n\nView interactive milestone timelines on the **Career Roadmap** page.`;
+        } else {
+          reply = `Regarding your inquiry on **"${textToSend}"** for **${department}**:\n\n` +
+            `To achieve optimal readiness for **${topRole.title}**:\n` +
+            `1. Review foundational concepts in: ${missingSkills.slice(0, 2).join(' and ')}.\n` +
+            `2. Complete a technical domain mock interview in the Interview Center.\n` +
+            `3. Verify that your uploaded resume reflects your departmental course projects.\n\n` +
+            `Would you like me to formulate a practice interview prompt or analyze specific technical topics?`;
+        }
       }
 
       setMessages(prev => [...prev, { sender: 'ai', text: reply }]);
@@ -59,22 +150,27 @@ export const AiCareerAssistantPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold">
+              {department}
+            </span>
+          </div>
           <h1 className="text-xl font-bold text-[#173B63] flex items-center gap-2">
             <Bot className="w-6 h-6 text-[#7567C7]" />
-            <span>CareerAI Assistant & Personal Mentor</span>
+            <span>AI Career Assistant & Department Mentor</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            24/7 intelligent career guidance, resume suggestions, interview coaching, and skill advice
+            24/7 intelligent career coaching, interview guidance, and technical subject assistance for {department}.
           </p>
         </div>
 
         <button
           onClick={() => setMessages([messages[0]])}
-          className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Reset Chat</span>
@@ -90,8 +186,8 @@ export const AiCareerAssistantPage: React.FC = () => {
               <Sparkles className="w-4 h-4 text-teal-300" />
             </div>
             <div>
-              <h3 className="font-bold text-xs">Career Accelerator AI Model v3.2</h3>
-              <p className="text-[10px] text-slate-200">Personalized to {userName} • CS Junior</p>
+              <h3 className="font-bold text-xs">Career Accelerator AI Mentor</h3>
+              <p className="text-[10px] text-slate-200">{userName} • {department}</p>
             </div>
           </div>
           <span className="text-[10px] bg-white/20 text-white font-mono px-2 py-0.5 rounded-full font-bold">
@@ -99,18 +195,20 @@ export const AiCareerAssistantPage: React.FC = () => {
           </span>
         </div>
 
-        {/* Suggested Quick Prompt Chips */}
-        <div className="p-3 bg-slate-50 border-b border-slate-200 flex gap-2 overflow-x-auto text-xs">
-          {suggestedPrompts.map((p, i) => (
-            <button
-              key={i}
-              onClick={() => handleSend(p)}
-              className="px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:border-[#7567C7] hover:text-[#7567C7] text-slate-700 text-xs font-medium shrink-0 transition"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
+        {/* Suggested Quick Prompt Chips - Tailored to Department */}
+        {suggestedPrompts.length > 0 && (
+          <div className="p-3 bg-slate-50 border-b border-slate-200 flex gap-2 overflow-x-auto text-xs">
+            {suggestedPrompts.map((p, i) => (
+              <button
+                key={i}
+                onClick={() => handleSend(p)}
+                className="px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:border-[#7567C7] hover:text-[#7567C7] text-slate-700 text-xs font-medium shrink-0 transition cursor-pointer"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Messages Feed */}
         <div className="flex-1 p-6 overflow-y-auto space-y-4 text-xs sm:text-sm">
@@ -120,44 +218,44 @@ export const AiCareerAssistantPage: React.FC = () => {
               className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.sender === 'ai' && (
-                <div className="w-8 h-8 rounded-xl bg-[#7567C7] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-[#173B63] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Bot className="w-4 h-4" />
                 </div>
               )}
 
-              <div
-                className={`max-w-[80%] rounded-2xl p-4 leading-relaxed ${
-                  msg.sender === 'user'
-                    ? 'bg-[#173B63] text-white rounded-br-none shadow-xs'
-                    : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-bl-none shadow-2xs'
-                }`}
-              >
-                <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
+              <div className="relative group max-w-[82%]">
+                <div
+                  className={`p-4 rounded-2xl whitespace-pre-line leading-relaxed text-xs shadow-xs ${
+                    msg.sender === 'user'
+                      ? 'bg-[#173B63] text-white rounded-br-none'
+                      : 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200'
+                  }`}
+                >
+                  {msg.text}
+                </div>
 
                 {msg.sender === 'ai' && (
-                  <div className="mt-3 pt-2 border-t border-slate-200 flex items-center justify-end">
-                    <button
-                      onClick={() => handleCopy(msg.text, idx)}
-                      className="text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-1 font-mono"
-                    >
-                      {copiedIndex === idx ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span className="text-emerald-600">Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Copy Response</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleCopy(msg.text, idx)}
+                    className="absolute -bottom-5 right-2 opacity-0 group-hover:opacity-100 transition text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer"
+                  >
+                    {copiedIndex === idx ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span className="text-emerald-600 font-bold">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
 
               {msg.sender === 'user' && (
-                <div className="w-8 h-8 rounded-xl bg-slate-200 flex items-center justify-center text-slate-700 shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-full bg-[#2F9C95] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -165,15 +263,23 @@ export const AiCareerAssistantPage: React.FC = () => {
           ))}
 
           {isLoading && (
-            <div className="flex items-center gap-3 text-slate-500 text-xs animate-pulse">
-              <Bot className="w-5 h-5 text-[#7567C7] animate-spin" />
-              <span>CareerAI is analyzing recommendations...</span>
+            <div className="flex gap-3 justify-start items-center text-slate-400 text-xs">
+              <div className="w-8 h-8 rounded-full bg-[#173B63] text-white flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="p-3 bg-slate-100 rounded-2xl rounded-bl-none flex items-center gap-1.5 border border-slate-200">
+                <span className="w-1.5 h-1.5 bg-[#2F9C95] rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 bg-[#2F9C95] rounded-full animate-bounce [animation-delay:0.2s]" />
+                <span className="w-1.5 h-1.5 bg-[#2F9C95] rounded-full animate-bounce [animation-delay:0.4s]" />
+              </div>
             </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Form */}
-        <div className="p-4 bg-white border-t border-slate-200">
+        {/* Input Bar */}
+        <div className="p-3 bg-white border-t border-slate-200">
           <form
             onSubmit={e => {
               e.preventDefault();
@@ -185,16 +291,16 @@ export const AiCareerAssistantPage: React.FC = () => {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Ask anything about your resume, career roadmap, interview questions, or job applications..."
-              className="flex-1 bg-slate-50 text-xs sm:text-sm px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#7567C7] focus:bg-white transition"
+              placeholder={`Ask a career, interview, or technical question for ${department}...`}
+              disabled={isLoading}
+              className="flex-1 bg-slate-50 text-xs px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2F9C95] focus:bg-white transition"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 bg-[#7567C7] hover:bg-[#6456b8] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              className="p-3 bg-[#173B63] hover:bg-[#204B7D] disabled:opacity-40 text-white rounded-xl transition cursor-pointer shadow-xs"
             >
-              <span>Send</span>
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-4 h-4" />
             </button>
           </form>
         </div>

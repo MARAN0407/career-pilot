@@ -16,6 +16,11 @@ export interface User {
   registerNumber?: string;
   semester?: string;
   gpa?: number;
+  banner?: string;
+  bio?: string;
+  headline?: string;
+  phone?: string;
+  location?: string;
 }
 
 export interface Course {

@@ -163,37 +163,60 @@ export const StudentDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-[#173B63]" />
-                <h4 className="font-bold text-xs text-slate-800">Technical Domain Round</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Cpu className="w-4 h-4 text-[#173B63]" />
+                  <h4 className="font-bold text-xs text-slate-800">Technical Domain Round</h4>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-normal">
+                  Deep-dive into {deptMeta.shortCode} core technical theories, calculations, and architecture.
+                </p>
               </div>
-              <p className="text-[11px] text-slate-600 leading-normal">
-                Deep-dive into {deptMeta.shortCode} fundamentals, circuit/code analysis, and design tradeoffs.
-              </p>
               <button
-                onClick={() => navigate('/student/interview-center')}
-                className="w-full mt-1 py-2 bg-[#173B63] hover:bg-[#204B7D] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                onClick={() => navigate('/student/interview-center?round=technical')}
+                className="w-full mt-2 py-2 bg-[#173B63] hover:bg-[#204B7D] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <span>Start Technical Mock</span>
+                <span>Technical Round</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-[#7567C7]" />
-                <h4 className="font-bold text-xs text-slate-800">HR & STAR Leadership Round</h4>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-[#2F9C95]" />
+                  <h4 className="font-bold text-xs text-slate-800">HR Round</h4>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-normal">
+                  Behavioral, culture alignment, career motivation, adaptability, and teamwork ethics.
+                </p>
               </div>
-              <p className="text-[11px] text-slate-600 leading-normal">
-                Behavioral interview questions assessing project conflict resolution, failure recovery, and teamwork.
-              </p>
               <button
-                onClick={() => navigate('/student/interview-center')}
-                className="w-full mt-1 py-2 bg-[#7567C7] hover:bg-[#6456b8] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                onClick={() => navigate('/student/interview-center?round=hr')}
+                className="w-full mt-2 py-2 bg-[#2F9C95] hover:bg-[#247d77] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <span>Start HR / STAR Mock</span>
+                <span>HR Round</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Award className="w-4 h-4 text-[#7567C7]" />
+                  <h4 className="font-bold text-xs text-slate-800">Star Leadership Round</h4>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-normal">
+                  Situation, Task, Action, Result methodology, crisis management, and decision making.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/student/interview-center?round=star')}
+                className="w-full mt-2 py-2 bg-[#7567C7] hover:bg-[#6456b8] text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <span>STAR Leadership</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

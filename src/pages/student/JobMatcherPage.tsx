@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { careerService } from '../../services/careerService';
 import { JobListing } from '../../types';
 import { JobMatchModal } from '../../components/career/JobMatchModal';
@@ -16,14 +17,15 @@ import {
 } from 'lucide-react';
 
 export const JobMatcherPage: React.FC = () => {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<JobListing[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
   const [roleFilter, setRoleFilter] = useState<'All' | 'Internship' | 'Full-time'>('All');
 
   useEffect(() => {
-    careerService.getJobListings().then(setJobs);
-  }, []);
+    careerService.getJobListings(user?.department).then(setJobs);
+  }, [user?.department]);
 
   const filteredJobs = jobs.filter(j => {
     const matchesSearch = j.title.toLowerCase().includes(searchTerm.toLowerCase()) || j.company.toLowerCase().includes(searchTerm.toLowerCase());
@@ -32,16 +34,21 @@ export const JobMatcherPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold">
+              {user?.department || 'Department Hiring Pool'}
+            </span>
+          </div>
           <h1 className="text-xl font-bold text-[#173B63] flex items-center gap-2">
             <Briefcase className="w-6 h-6 text-[#3B82C4]" />
             <span>AI Job Discovery & Match Intelligence</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Verified campus placements, tech internships, and full-time engineering roles ranked by profile compatibility
+            Verified campus placements and engineering hiring roles matched strictly to {user?.department || 'your department'}.
           </p>
         </div>
       </div>

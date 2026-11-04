@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { interviewService } from '../../services/interviewService';
 import { InterviewQuestion, InterviewType } from '../../types';
@@ -32,7 +32,8 @@ import {
   School,
   Search,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  Award
 } from 'lucide-react';
 
 const QUESTION_COUNTS = [
@@ -50,6 +51,13 @@ const DIFFICULTY_LEVELS = [
 
 export const InterviewCenterPage: React.FC = () => {
   const { user, updateUser } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialRoundParam = (searchParams.get('round') || 'technical').toLowerCase();
+  
+  // 3 distinct rounds: Technical Domain Round, HR Round, Star Leadership Round
+  const [selectedRound, setSelectedRound] = useState<'technical' | 'hr' | 'star'>(
+    initialRoundParam === 'hr' ? 'hr' : initialRoundParam === 'star' ? 'star' : 'technical'
+  );
   
   // Find initial department that matches one of the exact 14
   const defaultDept = EXACT_14_DEPARTMENTS.find(d => d === user?.department) || EXACT_14_DEPARTMENTS[2]; // CSE default
@@ -80,35 +88,54 @@ export const InterviewCenterPage: React.FC = () => {
     }
   }, [user?.department]);
 
-  // Fetch subject-specific questions
-  const fetchQuestions = async (dept = selectedDept, subj = selectedSubject, diff = selectedDifficulty, cnt = selectedCount) => {
-    if (!subj) {
+  // Synchronize when round param in URL changes
+  useEffect(() => {
+    const roundInUrl = searchParams.get('round');
+    if (roundInUrl && (roundInUrl === 'hr' || roundInUrl === 'star' || roundInUrl === 'technical')) {
+      setSelectedRound(roundInUrl as any);
+    }
+  }, [searchParams]);
+
+  // Fetch questions customized for department and specific round
+  const fetchQuestions = async (
+    dept = selectedDept, 
+    subj = selectedSubject, 
+    diff = selectedDifficulty, 
+    cnt = selectedCount,
+    rnd = selectedRound
+  ) => {
+    if (rnd === 'technical' && !subj) {
       setQuestions([]);
       return;
     }
     setIsLoadingQuestions(true);
     setGenerationError(null);
     try {
-      const res = await interviewService.getQuestions('camera', subj, cnt, dept, diff);
+      const res = await interviewService.getQuestions(
+        'camera', 
+        rnd === 'technical' ? subj : rnd === 'hr' ? 'HR Round' : 'Star Leadership Round', 
+        cnt, 
+        dept, 
+        diff,
+        rnd
+      );
       if (res && res.length > 0) {
         setQuestions(res);
       } else {
-        setGenerationError(`Unable to generate questions for ${subj}. Please retry.`);
+        setGenerationError(`Unable to generate questions for ${rnd === 'technical' ? subj : rnd.toUpperCase() + ' Round'}. Please retry.`);
       }
     } catch (err: any) {
-      console.error('Error fetching subject questions:', err);
-      setGenerationError(err.message || 'Failed to generate department subject questions.');
+      console.error('Error fetching questions:', err);
+      setGenerationError(err.message || 'Failed to generate department interview questions.');
     } finally {
       setIsLoadingQuestions(false);
     }
   };
 
-  // Re-fetch questions when department, subject, difficulty or count changes
+  // Re-fetch questions when department, subject, difficulty, count, or round changes
   useEffect(() => {
-    if (selectedSubject) {
-      fetchQuestions(selectedDept, selectedSubject, selectedDifficulty, selectedCount);
-    }
-  }, [selectedDept, selectedSubject, selectedDifficulty, selectedCount]);
+    fetchQuestions(selectedDept, selectedSubject, selectedDifficulty, selectedCount, selectedRound);
+  }, [selectedDept, selectedSubject, selectedDifficulty, selectedCount, selectedRound]);
 
   // Handle department change: CLEAR previous subject and load subjects of new department
   const handleDepartmentChange = async (newDept: string) => {
@@ -124,20 +151,31 @@ export const InterviewCenterPage: React.FC = () => {
   };
 
   const handleStartInterview = async (type: InterviewType) => {
-    if (!selectedDept || !selectedSubject) {
-      setGenerationError('Please select both a department and a subject to start the interview.');
+    if (!selectedDept) {
+      setGenerationError('Please select a department to start the interview.');
+      return;
+    }
+    if (selectedRound === 'technical' && !selectedSubject) {
+      setGenerationError('Please select a subject to start the Technical Domain mock interview.');
       return;
     }
     // If questions aren't loaded or need refresh, load them
     if (questions.length === 0) {
       setIsLoadingQuestions(true);
       try {
-        const loaded = await interviewService.getQuestions(type, selectedSubject, selectedCount, selectedDept, selectedDifficulty);
+        const loaded = await interviewService.getQuestions(
+          type, 
+          selectedRound === 'technical' ? selectedSubject : selectedRound === 'hr' ? 'HR Round' : 'Star Leadership Round', 
+          selectedCount, 
+          selectedDept, 
+          selectedDifficulty,
+          selectedRound
+        );
         if (loaded && loaded.length > 0) {
           setQuestions(loaded);
           setActiveSessionType(type);
         } else {
-          setGenerationError(`Question generation failed for ${selectedSubject}. Please retry.`);
+          setGenerationError(`Question generation failed for this round. Please retry.`);
         }
       } catch (err: any) {
         setGenerationError(err.message || 'Question generation failed.');
@@ -152,13 +190,27 @@ export const InterviewCenterPage: React.FC = () => {
   const handleComplete = async (answers: { questionId: string; question: string; answerText: string }[]) => {
     if (!activeSessionType) return;
     
-    // Attach department, subject and question metadata so evaluator has full rubric context
+    const roundTitle = selectedRound === 'technical' 
+      ? 'Technical Domain Round' 
+      : selectedRound === 'hr' 
+      ? 'HR Round' 
+      : 'Star Leadership Round';
+
+    const subjectTitle = selectedRound === 'technical' 
+      ? selectedSubject 
+      : selectedRound === 'hr' 
+      ? 'HR & Behavioral Evaluation' 
+      : 'STAR Leadership & Situational Scenarios';
+
+    // Attach department, round, subject and question metadata so evaluator has full rubric context
     const enrichedAnswers = answers.map((ans, idx) => {
       const matchedQ = questions.find(q => q.id === ans.questionId) || questions[idx];
       return {
         ...ans,
         department: selectedDept,
-        subject: selectedSubject,
+        round: roundTitle,
+        subject: subjectTitle,
+        role: `${selectedDept} Candidate`,
         difficulty: selectedDifficulty,
         expectedKeypoints: matchedQ?.expectedKeypoints,
         requiredKeywords: matchedQ?.requiredKeywords,
@@ -251,103 +303,220 @@ export const InterviewCenterPage: React.FC = () => {
         </div>
       )}
 
+      {/* 3 DISTINCT ROUND SELECTOR TABS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedRound('technical');
+            setSearchParams({ round: 'technical' });
+          }}
+          className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 cursor-pointer ${
+            selectedRound === 'technical'
+              ? 'bg-blue-50/70 border-[#173B63] ring-2 ring-[#173B63]/20 shadow-xs'
+              : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <div className={`p-2.5 rounded-xl shrink-0 ${selectedRound === 'technical' ? 'bg-[#173B63] text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <Code2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-xs text-[#173B63]">1. Technical Domain Round</h3>
+              {selectedRound === 'technical' && <span className="px-1.5 py-0.5 rounded text-[9px] bg-blue-100 text-blue-800 font-bold">Active</span>}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Curriculum formulas, principles, circuits & algorithms for {selectedDept}.
+            </p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedRound('hr');
+            setSearchParams({ round: 'hr' });
+          }}
+          className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 cursor-pointer ${
+            selectedRound === 'hr'
+              ? 'bg-teal-50/70 border-[#2F9C95] ring-2 ring-[#2F9C95]/20 shadow-xs'
+              : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <div className={`p-2.5 rounded-xl shrink-0 ${selectedRound === 'hr' ? 'bg-[#2F9C95] text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <Target className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-xs text-[#173B63]">2. HR Round</h3>
+              {selectedRound === 'hr' && <span className="px-1.5 py-0.5 rounded text-[9px] bg-teal-100 text-teal-800 font-bold">Active</span>}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Behavioral, motivation, culture fit, deadlines & engineering conflict handling.
+            </p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedRound('star');
+            setSearchParams({ round: 'star' });
+          }}
+          className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 cursor-pointer ${
+            selectedRound === 'star'
+              ? 'bg-purple-50/70 border-[#7567C7] ring-2 ring-[#7567C7]/20 shadow-xs'
+              : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <div className={`p-2.5 rounded-xl shrink-0 ${selectedRound === 'star' ? 'bg-[#7567C7] text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-xs text-[#173B63]">3. Star Leadership Round</h3>
+              {selectedRound === 'star' && <span className="px-1.5 py-0.5 rounded text-[9px] bg-purple-100 text-purple-800 font-bold">Active</span>}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Situation, Task, Action, Result structured crisis resolution & project ownership.
+            </p>
+          </div>
+        </button>
+      </div>
+
       {/* 4-STEP CONFIGURATION WORKFLOW */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-[#3B82C4]" />
-            <h2 className="text-sm font-bold text-slate-800">Configure Your Department & Subject Interview</h2>
+            <h2 className="text-sm font-bold text-slate-800">
+              Configure {selectedRound === 'technical' ? 'Technical Domain' : selectedRound === 'hr' ? 'HR Behavioral' : 'STAR Leadership'} Interview
+            </h2>
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 font-semibold border border-teal-200">
-              {currentDeptObj?.shortCode} Subject Bank
+              {selectedRound === 'technical' ? `${currentDeptObj?.shortCode} Subject Bank` : `${selectedRound.toUpperCase()} Question Pool`}
             </span>
           </div>
 
           <button
-            onClick={() => fetchQuestions(selectedDept, selectedSubject, selectedDifficulty, selectedCount)}
-            disabled={isLoadingQuestions || !selectedSubject}
+            onClick={() => fetchQuestions(selectedDept, selectedSubject, selectedDifficulty, selectedCount, selectedRound)}
+            disabled={isLoadingQuestions}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 text-xs font-semibold transition cursor-pointer self-start sm:self-auto"
-            title="Generate a fresh randomized set of questions for this subject"
+            title="Generate a fresh randomized set of questions"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoadingQuestions ? 'animate-spin text-[#3B82C4]' : 'text-slate-500'}`} />
-            <span>Shuffle Subject Questions</span>
+            <span>Shuffle Round Questions</span>
           </button>
         </div>
 
-        {/* STEP 1: SELECT SUBJECT FOR CURRENT DEPARTMENT */}
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Step 1: Select Subject for {selectedDept}
-              </label>
-              <p className="text-[11px] text-slate-500">
-                Only verified subjects for {selectedDept} are shown. Select one subject to focus the interview.
-              </p>
-            </div>
-
-            {/* Quick search input within the department's subjects */}
-            <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={subjectSearch}
-                onChange={e => setSubjectSearch(e.target.value)}
-                placeholder={`Search ${availableSubjects.length} subjects...`}
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2F9C95] focus:bg-white transition"
-              />
-            </div>
-          </div>
-
-          {/* Subjects dropdown & quick grid */}
-          <div className="space-y-2">
-            <select
-              value={selectedSubject}
-              onChange={e => setSelectedSubject(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#2F9C95] focus:bg-white cursor-pointer shadow-xs"
-            >
-              <option value="" disabled>-- Select a Subject from {selectedDept} --</option>
-              {availableSubjects.map((subj, idx) => (
-                <option key={subj} value={subj}>
-                  {idx + 1}. {subj}
-                </option>
-              ))}
-            </select>
-
-            {/* Scrollable pill container for quick browsing */}
-            <div className="max-h-48 overflow-y-auto p-2.5 bg-slate-50/60 rounded-xl border border-slate-200/80 flex flex-wrap gap-1.5">
-              {filteredSubjects.map(subj => {
-                const isSelected = selectedSubject === subj;
-                return (
-                  <button
-                    key={subj}
-                    type="button"
-                    onClick={() => setSelectedSubject(subj)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium text-left transition cursor-pointer flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-[#173B63] text-white shadow-xs font-bold'
-                        : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                    }`}
-                  >
-                    {isSelected && <CheckCircle2 className="w-3 h-3 text-teal-300 shrink-0" />}
-                    <span className="truncate max-w-[280px]">{subj}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {selectedSubject && (
-            <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-center justify-between text-xs text-teal-900">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#2F9C95] shrink-0" />
-                <span>Active Target Subject: <strong>{selectedSubject}</strong></span>
+        {/* STEP 1: ROUND-SPECIFIC FOCUS OR SUBJECT SELECTION */}
+        {selectedRound === 'technical' ? (
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Step 1: Select Subject for {selectedDept}
+                </label>
+                <p className="text-[11px] text-slate-500">
+                  Only verified curriculum subjects for {selectedDept} are shown. Select one subject to focus the interview.
+                </p>
               </div>
-              <span className="text-[11px] font-semibold text-teal-700 bg-teal-100/80 px-2 py-0.5 rounded-md">
-                100% Subject Aligned
-              </span>
+
+              {/* Quick search input within the department's subjects */}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={subjectSearch}
+                  onChange={e => setSubjectSearch(e.target.value)}
+                  placeholder={`Search ${availableSubjects.length} subjects...`}
+                  className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#2F9C95] focus:bg-white transition"
+                />
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Subjects dropdown & quick grid */}
+            <div className="space-y-2">
+              <select
+                value={selectedSubject}
+                onChange={e => setSelectedSubject(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#2F9C95] focus:bg-white cursor-pointer shadow-xs"
+              >
+                <option value="" disabled>-- Select a Subject from {selectedDept} --</option>
+                {availableSubjects.map((subj, idx) => (
+                  <option key={subj} value={subj}>
+                    {idx + 1}. {subj}
+                  </option>
+                ))}
+              </select>
+
+              {/* Scrollable pill container for quick browsing */}
+              <div className="max-h-48 overflow-y-auto p-2.5 bg-slate-50/60 rounded-xl border border-slate-200/80 flex flex-wrap gap-1.5">
+                {filteredSubjects.map(subj => {
+                  const isSelected = selectedSubject === subj;
+                  return (
+                    <button
+                      key={subj}
+                      type="button"
+                      onClick={() => setSelectedSubject(subj)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium text-left transition cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-[#173B63] text-white shadow-xs font-bold'
+                          : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}
+                    >
+                      {isSelected && <CheckCircle2 className="w-3 h-3 text-teal-300 shrink-0" />}
+                      <span className="truncate max-w-[280px]">{subj}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {selectedSubject && (
+              <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-center justify-between text-xs text-teal-900">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#2F9C95] shrink-0" />
+                  <span>Active Target Subject: <strong>{selectedSubject}</strong></span>
+                </div>
+                <span className="text-[11px] font-semibold text-teal-700 bg-teal-100/80 px-2 py-0.5 rounded-md">
+                  100% Subject Aligned
+                </span>
+              </div>
+            )}
+          </div>
+        ) : selectedRound === 'hr' ? (
+          <div className="p-4 bg-teal-50/60 border border-teal-200 rounded-xl space-y-2">
+            <div className="flex items-center gap-2 text-teal-900">
+              <Target className="w-5 h-5 text-[#2F9C95]" />
+              <h3 className="font-bold text-xs uppercase tracking-wider">Step 1: HR & Behavioral Round Competency Scope</h3>
+            </div>
+            <p className="text-xs text-slate-700 leading-relaxed">
+              This round assesses your personal motivation for <strong>{selectedDept}</strong>, ability to handle tight engineering deadlines, teamwork ethics, communication clarity, and adaptability to industry workplace challenges.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
+              <span className="px-2.5 py-1 bg-white border border-teal-200 rounded-lg font-semibold text-teal-800">✓ Self-Introduction & Background</span>
+              <span className="px-2.5 py-1 bg-white border border-teal-200 rounded-lg font-semibold text-teal-800">✓ Conflict Resolution</span>
+              <span className="px-2.5 py-1 bg-white border border-teal-200 rounded-lg font-semibold text-teal-800">✓ Feedback Receptivity</span>
+              <span className="px-2.5 py-1 bg-white border border-teal-200 rounded-lg font-semibold text-teal-800">✓ 3-5 Year Career Outlook</span>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 bg-purple-50/60 border border-purple-200 rounded-xl space-y-2">
+            <div className="flex items-center gap-2 text-purple-900">
+              <Award className="w-5 h-5 text-[#7567C7]" />
+              <h3 className="font-bold text-xs uppercase tracking-wider">Step 1: STAR Leadership Round Competency Scope</h3>
+            </div>
+            <p className="text-xs text-slate-700 leading-relaxed">
+              Respond using the structured <strong>STAR framework</strong> (Situation, Task, Action, Result). Evaluates technical ownership, project crisis recovery, safety and ethical leadership, and data-driven persuasion for <strong>{selectedDept}</strong>.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
+              <span className="px-2.5 py-1 bg-white border border-purple-200 rounded-lg font-semibold text-purple-800">★ Situation: Concrete project context</span>
+              <span className="px-2.5 py-1 bg-white border border-purple-200 rounded-lg font-semibold text-purple-800">★ Task: Specific leadership ownership</span>
+              <span className="px-2.5 py-1 bg-white border border-purple-200 rounded-lg font-semibold text-purple-800">★ Action: Tactical engineering decisions</span>
+              <span className="px-2.5 py-1 bg-white border border-purple-200 rounded-lg font-semibold text-purple-800">★ Result: Quantified impact & lessons</span>
+            </div>
+          </div>
+        )}
 
         {/* STEP 2: SELECT DIFFICULTY LEVEL */}
         <div>

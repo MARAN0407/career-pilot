@@ -59,51 +59,91 @@ function shuffleArray(array) {
 
 import { generateSubjectQuestions } from '../subjectQuestionEngine.js';
 import { getSubjectsForDepartment, isValidDepartment, DEPARTMENT_SUBJECTS } from '../departmentSubjects.js';
+import { generateHrQuestions } from '../hrQuestions.js';
+import { generateStarQuestions } from '../starQuestions.js';
 
-// GET /api/interview/questions?department=...&subject=...&category=...&count=...&difficulty=...
+// GET /api/interview/questions?department=...&subject=...&category=...&count=...&difficulty=...&round=...
 router.get('/questions', (req, res) => {
-  let { department, subject, category, count = 5, difficulty = 'Intermediate' } = req.query;
+  let { department, subject, category, count = 5, difficulty = 'Intermediate', round = 'technical' } = req.query;
 
   // Department handling
   if (!department || department === 'all' || department === 'All') {
     department = 'Computer Science and Engineering (CSE)';
   }
 
-  // Target subject: prefer subject parameter, fallback to category if it's a valid subject
-  let targetSubject = subject;
-  if (!targetSubject && category && category !== 'all' && category !== 'Mixed') {
-    targetSubject = category;
-  }
-
-  // If still no subject, pick the first subject from that department
-  if (!targetSubject) {
-    const deptSubjects = getSubjectsForDepartment(department);
-    if (deptSubjects && deptSubjects.length > 0) {
-      targetSubject = deptSubjects[0];
-    } else {
-      targetSubject = 'Programming in C and Data Structures';
-    }
-  }
+  const normalizedRound = (round || 'technical').toLowerCase();
+  const qCount = Math.min(12, Math.max(3, parseInt(count, 10) || 5));
 
   try {
-    const qCount = Math.min(12, Math.max(3, parseInt(count, 10) || 5));
-    const questions = generateSubjectQuestions(department, targetSubject, difficulty, qCount);
+    // 1. HR Round
+    if (normalizedRound === 'hr' || normalizedRound.includes('hr')) {
+      const hrQuestions = generateHrQuestions(department, qCount);
+      return res.json({
+        success: true,
+        department,
+        round: 'HR Round',
+        subject: 'HR & Behavioral Evaluation',
+        difficulty,
+        totalQuestions: hrQuestions.length,
+        questions: hrQuestions
+      });
+    }
+
+    // 2. STAR Leadership Round
+    if (normalizedRound === 'star' || normalizedRound.includes('leadership')) {
+      const starQuestions = generateStarQuestions(department, qCount);
+      return res.json({
+        success: true,
+        department,
+        round: 'Star Leadership Round',
+        subject: 'STAR Leadership & Crisis Scenarios',
+        difficulty,
+        totalQuestions: starQuestions.length,
+        questions: starQuestions
+      });
+    }
+
+    // 3. Technical Domain Round (Default)
+    // Target subject: prefer subject parameter, fallback to category if it's a valid subject
+    let targetSubject = subject;
+    if (!targetSubject && category && category !== 'all' && category !== 'Mixed') {
+      targetSubject = category;
+    }
+
+    // If still no subject, pick the first subject from that department
+    if (!targetSubject) {
+      const deptSubjects = getSubjectsForDepartment(department);
+      if (deptSubjects && deptSubjects.length > 0) {
+        targetSubject = deptSubjects[0];
+      } else {
+        targetSubject = 'Programming in C and Data Structures';
+      }
+    }
+
+    const rawQuestions = generateSubjectQuestions(department, targetSubject, difficulty, qCount * 2);
+    const shuffled = shuffleArray(rawQuestions);
+    const questions = shuffled.slice(0, qCount).map((q, i) => ({
+      ...q,
+      questionNumber: i + 1,
+      totalQuestions: qCount
+    }));
 
     return res.json({
       success: true,
       department,
+      round: 'Technical Domain Round',
       subject: targetSubject,
       difficulty,
       totalQuestions: questions.length,
       questions
     });
   } catch (err) {
-    console.error('Error generating subject questions:', err.message);
+    console.error('Error generating interview questions:', err.message);
     return res.status(400).json({
       success: false,
       message: err.message,
       department,
-      subject: targetSubject
+      round: normalizedRound
     });
   }
 });
@@ -130,38 +170,42 @@ router.post('/evaluate', (req, res) => {
   });
 });
 
-// GET /api/interview/latest
+// GET /api/interview/latest?department=...
 router.get('/latest', (req, res) => {
+  const { department } = req.query;
+  const history = getStoredHistory();
+  
+  if (department && department !== 'all') {
+    const matching = history.find(r => r.department && r.department.toLowerCase().includes(department.toLowerCase()));
+    if (matching) {
+      return res.json({ success: true, report: matching });
+    }
+  }
+
   const report = getLatestStoredReport();
   if (report) {
+    if (department && department !== 'all' && report.department && !report.department.toLowerCase().includes(department.toLowerCase())) {
+      // Doesn't match requested department
+      return res.json({ success: true, report: null });
+    }
     return res.json({ success: true, report });
   }
 
-  // Fallback initial benchmark evaluation
-  const initialBenchmark = evaluateInterviewAnswers('camera', [
-    {
-      questionId: interviewQuestions[0].id,
-      question: interviewQuestions[0].questionText,
-      answerText: interviewQuestions[0].modelAnswer
-    },
-    {
-      questionId: interviewQuestions[1].id,
-      question: interviewQuestions[1].questionText,
-      answerText: interviewQuestions[1].modelAnswer
-    },
-    {
-      questionId: interviewQuestions[2].id,
-      question: interviewQuestions[2].questionText,
-      answerText: interviewQuestions[2].modelAnswer
-    }
-  ]);
-
-  res.json({ success: true, report: initialBenchmark });
+  // Strictly no fabricated report
+  res.json({ success: true, report: null });
 });
 
-// GET /api/interview/history
+// GET /api/interview/history?department=...
 router.get('/history', (req, res) => {
-  const history = getStoredHistory();
+  const { department } = req.query;
+  let history = getStoredHistory();
+
+  if (department && department !== 'all') {
+    history = history.filter(item => 
+      item.department && item.department.toLowerCase().includes(department.toLowerCase())
+    );
+  }
+
   res.json({ success: true, history });
 });
 

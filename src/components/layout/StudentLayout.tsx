@@ -22,8 +22,26 @@ import {
   Search, 
   Sparkles, 
   ShieldCheck,
-  Award
+  Award,
+  ArrowLeft
 } from 'lucide-react';
+
+const SEARCHABLE_FEATURES = [
+  { title: 'AI Mock Interview Center', desc: 'Practice Technical Domain, HR & STAR Leadership rounds', path: '/student/interview-center', category: 'Interviews' },
+  { title: 'Technical Domain Round', desc: 'Department-specific core engineering technical questions', path: '/student/interview-center', category: 'Interviews' },
+  { title: 'HR Round', desc: 'Behavioral, career aspirations & workplace adaptability questions', path: '/student/interview-center', category: 'Interviews' },
+  { title: 'STAR Leadership Round', desc: 'Situation, Task, Action, Result leadership scenarios', path: '/student/interview-center', category: 'Interviews' },
+  { title: 'Interview Scorecards & Radar', desc: 'Multi-axis rubric evaluation and department performance', path: '/student/interview-results', category: 'Assessment' },
+  { title: 'Interview History', desc: 'Archived mock sessions and performance transcripts', path: '/student/interview-history', category: 'Assessment' },
+  { title: 'Resume AI (ATS Diagnostics)', desc: 'Split-screen resume scanner & department keyword audit', path: '/student/resume-ai', category: 'Resume' },
+  { title: 'Career Intelligence & Role Prediction', desc: 'Curriculum-aligned career role matching for your department', path: '/student/career-intel', category: 'Career' },
+  { title: 'Skill Gap Analysis', desc: 'Department-specific technical skills and missing requirements', path: '/student/skill-gap', category: 'Career' },
+  { title: 'Job Matcher', desc: 'Hiring roles matched to your department and qualifications', path: '/student/jobs', category: 'Jobs' },
+  { title: 'Career Roadmap', desc: 'Department progression stages, core skills & career goals', path: '/student/roadmap', category: 'Career' },
+  { title: 'AI Career Assistant', desc: '24/7 department career coaching and subject guidance', path: '/student/ai-assistant', category: 'AI Assistant' },
+  { title: 'Student Profile', desc: 'Edit personal information, picture, banner, and bio', path: '/student/profile', category: 'Account' },
+  { title: 'Settings & Department', desc: 'Update profile details, password, and logout', path: '/student/settings', category: 'Account' },
+];
 
 interface NavItem {
   label: string;
@@ -43,8 +61,16 @@ export const StudentLayout: React.FC = () => {
   const { user, notificationCount } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const filteredFeatures = SEARCHABLE_FEATURES.filter(item =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const navSections: NavSection[] = [
     {
@@ -230,20 +256,83 @@ export const StudentLayout: React.FC = () => {
           <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shadow-2xs shrink-0">
             <div className="flex items-center gap-3 flex-1 max-w-md">
               <button
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-xl hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 text-xs font-bold border border-slate-200 transition shadow-2xs shrink-0 cursor-pointer"
+                title="Go back to previous page"
+              >
+                <ArrowLeft className="w-4 h-4 text-[#173B63]" />
+                <span className="hidden sm:inline text-[#173B63]">Back</span>
+              </button>
+
+              <button
                 onClick={() => setIsMobileOpen(true)}
                 className="lg:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-600"
               >
                 <Menu className="w-5 h-5" />
               </button>
 
-              {/* Instagram / Chrome Pill Search */}
+              {/* Functional Search Bar with Instant Nav Dropdown */}
               <div className="relative w-full">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search courses, skills, assignments, AI tools..."
+                  value={searchQuery}
+                  onChange={e => {
+                    setSearchQuery(e.target.value);
+                    setIsSearchOpen(true);
+                  }}
+                  onFocus={() => setIsSearchOpen(true)}
+                  placeholder="Search platform features, mock interview rounds, skills..."
                   className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white text-xs text-slate-800 pl-10 pr-4 py-2 rounded-full border border-slate-200 focus:border-[#3B82C4] focus:outline-none transition shadow-2xs"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setIsSearchOpen(false);
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                  >
+                    ×
+                  </button>
+                )}
+
+                {/* Search Results Dropdown */}
+                {isSearchOpen && searchQuery.trim().length > 0 && (
+                  <div className="absolute left-0 right-0 top-11 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 max-h-80 overflow-y-auto animate-in fade-in">
+                    <div className="p-2 bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      Platform Features & Information
+                    </div>
+                    {filteredFeatures.length === 0 ? (
+                      <div className="p-4 text-center text-xs text-slate-500">
+                        No platform feature found for "{searchQuery}". Try searching for "Interview", "Resume", "Jobs", "Roadmap", or "Skills".
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {filteredFeatures.map((item, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => {
+                              navigate(item.path);
+                              setSearchQuery('');
+                              setIsSearchOpen(false);
+                            }}
+                            className="p-3 hover:bg-blue-50/60 cursor-pointer transition text-left flex items-center justify-between"
+                          >
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-xs text-[#173B63]">{item.title}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">{item.category}</span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 mt-0.5">{item.desc}</p>
+                            </div>
+                            <span className="text-xs text-[#3B82C4] font-bold shrink-0">Open →</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -292,7 +381,7 @@ export const StudentLayout: React.FC = () => {
                   <p className="text-xs font-bold text-[#173B63] group-hover:text-[#3B82C4] leading-tight">
                     {user.name}
                   </p>
-                  <p className="text-[10px] text-slate-500">CS Junior</p>
+                  <p className="text-[10px] text-slate-500 truncate max-w-[120px]">{user.department || 'Student'}</p>
                 </div>
               </div>
             </div>

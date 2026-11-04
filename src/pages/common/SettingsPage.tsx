@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   User, 
@@ -17,12 +18,14 @@ import {
   Eye, 
   Download, 
   LogOut,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon
 } from 'lucide-react';
 import { DEPARTMENT_NAMES } from '../../constants/departments';
 
 export const SettingsPage: React.FC = () => {
-  const { user, role, updateUser } = useAuth();
+  const { user, role, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<'personal' | 'security' | 'notifications' | 'privacy'>('personal');
@@ -30,11 +33,17 @@ export const SettingsPage: React.FC = () => {
   // Personal Info Form State
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
-  const [phone, setPhone] = useState('+91 98450 22341');
-  const [dob, setDob] = useState('2003-08-14');
-  const [gender, setGender] = useState('Male');
+  const [bio, setBio] = useState(user.bio || 'Aspiring engineer focused on technical problem solving and career growth.');
+  const [avatar, setAvatar] = useState(user.avatar);
+  const [banner, setBanner] = useState(user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80');
+  const [phone, setPhone] = useState(user.phone || '+91 98450 22341');
   const [department, setDepartment] = useState(user.department || DEPARTMENT_NAMES[0]);
   const [registerNo, setRegisterNo] = useState(user.registerNumber || '20240982');
+  const [dob, setDob] = useState('2004-05-15');
+  const [gender, setGender] = useState('Male');
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   // Security Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -53,17 +62,57 @@ export const SettingsPage: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setAvatar(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setBanner(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (updateUser) {
-        await updateUser({ name, email, department, registerNumber: registerNo });
+        await updateUser({ 
+          name, 
+          email, 
+          bio, 
+          avatar, 
+          banner, 
+          department, 
+          registerNumber: registerNo,
+          phone 
+        });
       }
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login/student');
   };
 
   return (
@@ -143,36 +192,76 @@ export const SettingsPage: React.FC = () => {
         {/* TAB 1: Personal Info */}
         {activeTab === 'personal' && (
           <div className="space-y-6 animate-in fade-in">
-            {/* Profile Photo Card */}
-            <div className="academic-card p-6 flex flex-col sm:flex-row items-center gap-6">
-              <div className="relative group">
+            {/* Profile Photo & Banner Card */}
+            <div className="academic-card p-6 space-y-4">
+              <h3 className="font-bold text-sm text-[#173B63] border-b border-slate-100 pb-2">
+                Profile Visuals (Picture & Banner)
+              </h3>
+
+              {/* Banner Preview & Upload */}
+              <div className="relative rounded-xl overflow-hidden border border-slate-200 h-28 sm:h-36 group">
                 <img
-                  src={user.avatar}
-                  alt={name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 shadow-sm"
+                  src={banner}
+                  alt="Profile Banner"
+                  className="w-full h-full object-cover"
                 />
-                <button
-                  type="button"
-                  onClick={() => alert('Choose new profile photo modal')}
-                  className="absolute bottom-0 right-0 p-1.5 bg-[#173B63] text-white rounded-full shadow-md hover:bg-[#204B7D] transition cursor-pointer"
-                  title="Change photo"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                </button>
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-800 font-bold text-xs shadow flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-[#173B63]" />
+                    <span>Upload New Banner</span>
+                  </button>
+                </div>
+                <input
+                  ref={bannerInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerFileChange}
+                  className="hidden"
+                />
               </div>
 
-              <div className="text-center sm:text-left space-y-1">
-                <h3 className="font-bold text-sm text-[#173B63]">Profile photo</h3>
-                <p className="text-slate-500 text-xs">
-                  A photo helps personalize your college profile and identity across classes
-                </p>
-                <button
-                  type="button"
-                  onClick={() => alert('Choose new profile photo')}
-                  className="text-xs font-semibold text-[#3B82C4] hover:underline pt-1 inline-block"
-                >
-                  Change profile picture
-                </button>
+              {/* Avatar Upload */}
+              <div className="flex flex-col sm:flex-row items-center gap-5 pt-2">
+                <div className="relative group">
+                  <img
+                    src={avatar}
+                    alt={name}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 p-1.5 bg-[#173B63] text-white rounded-full shadow-md hover:bg-[#204B7D] transition cursor-pointer"
+                    title="Change photo"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarFileChange}
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="text-center sm:text-left space-y-1">
+                  <h4 className="font-bold text-xs text-[#173B63]">Profile Picture</h4>
+                  <p className="text-slate-500 text-[11px]">
+                    Upload a clear professional headshot (JPG, PNG). Changes are reflected across your profile and interview certificates.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="text-xs font-semibold text-[#3B82C4] hover:underline pt-0.5 inline-block cursor-pointer"
+                  >
+                    Select New Photo
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -273,8 +362,19 @@ export const SettingsPage: React.FC = () => {
                     </select>
                   </div>
                   <p className="text-[11px] text-teal-700 mt-1">
-                    Your mock interview questions and rubrics will dynamically align with this department.
+                    Your mock interview questions, ATS analyzer, and roadmaps will dynamically align with this department.
                   </p>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-slate-700 mb-1">Professional Bio & Career Goals</label>
+                  <textarea
+                    rows={3}
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    placeholder="Describe your engineering focus, key interests, and career objectives..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#3B82C4]"
+                  />
                 </div>
               </div>
             </div>
@@ -505,6 +605,28 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Account Logout Option */}
+        <div className="academic-card p-6 border-l-4 border-l-rose-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <LogOut className="w-4 h-4 text-rose-600" />
+              <span>Sign Out of Career Accelerator</span>
+            </h4>
+            <p className="text-slate-500 text-xs mt-0.5">
+              Securely log out of your current session on this device.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs transition flex items-center gap-2 cursor-pointer shrink-0 shadow-2xs"
+          >
+            <LogOut className="w-4 h-4 text-rose-600" />
+            <span>Log Out</span>
+          </button>
+        </div>
 
         {/* Save Bar */}
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">

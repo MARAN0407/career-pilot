@@ -15,10 +15,14 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
-function getStoredResume() {
+function getStoredResume(department) {
   try {
     if (fs.existsSync(RESUME_STORE_FILE)) {
-      return JSON.parse(fs.readFileSync(RESUME_STORE_FILE, 'utf-8'));
+      const data = JSON.parse(fs.readFileSync(RESUME_STORE_FILE, 'utf-8'));
+      if (department && data.department && data.department !== department) {
+        return null;
+      }
+      return data;
     }
   } catch (err) {
     console.warn('Error reading latestResume.json', err.message);
@@ -34,36 +38,16 @@ function storeResume(data) {
   }
 }
 
-// GET /api/resume/latest
+// GET /api/resume/latest?department=...
 router.get('/latest', (req, res) => {
-  const stored = getStoredResume();
+  const { department } = req.query;
+  const stored = getStoredResume(department);
   if (stored) {
     return res.json({ success: true, isResume: true, data: stored });
   }
 
-  // Fallback initial benchmark
-  const initial = analyzeResumeATS(
-    `Ilamaran
-Computer Science & AI Engineering
-Apex Institute of Technology • GPA: 3.88
-Email: ilamaran@college.edu | LinkedIn: linkedin.com/in/ilamaran | GitHub: github.com/ilamaran
-
-EDUCATION
-Bachelor of Technology in Computer Science & AI (2022 - 2026)
-Coursework: Deep Learning, Neural Networks, Distributed Systems, Data Structures & Algorithms
-
-TECHNICAL SKILLS
-Languages: Python, C++, TypeScript, SQL
-Frameworks & Libraries: PyTorch, TensorFlow, FastAPI, React, Node.js, Pandas, NumPy
-Tools & Platforms: Docker, Git, Linux, PostgreSQL, REST APIs
-
-EXPERIENCE & PROJECTS
-Deep Learning ResNet Classifier: Architected a 12-layer ResNet model in PyTorch, achieving 94.2% accuracy.
-Enterprise AI Assistant: Built asynchronous REST APIs with FastAPI and PostgreSQL handling 1,200+ requests.`,
-    'Ilamaran_AI_Resume.pdf'
-  );
-
-  res.json({ success: true, isResume: true, data: initial });
+  // Pure clean state when no resume has been uploaded by the user
+  return res.json({ success: true, isResume: false, data: null });
 });
 
 // POST /api/resume/analyze
@@ -71,6 +55,7 @@ router.post('/analyze', upload.single('resumeFile'), async (req, res) => {
   try {
     let fileText = '';
     let filename = 'document.txt';
+    const department = req.body?.department || req.query?.department || '';
 
     if (req.file) {
       filename = req.file.originalname;
@@ -82,33 +67,45 @@ router.post('/analyze', upload.single('resumeFile'), async (req, res) => {
       return res.status(400).json({
         success: false,
         isResume: false,
-        error: 'No file or resume content was uploaded. Please upload your resume in PDF, DOCX, or TXT format.'
+        error: 'Please upload a valid resume.'
       });
     }
 
-    // 1. Differentiate whether it is actually a resume or not!
-    const validation = validateAndDifferentiateResume(fileText, filename);
+    // 1. Differentiate whether it is actually a resume, and whether it matches user's department
+    const validation = validateAndDifferentiateResume(fileText, filename, department);
 
     if (!validation.isResume) {
-      // Must NOT return an ATS score! Must alert user that uploaded file is not a resume.
       return res.status(422).json({
         success: false,
         isResume: false,
-        error: validation.reason,
+        departmentMismatch: false,
+        error: 'Please upload a valid resume.',
         filename,
         detectedSections: validation.detectedSections || [],
-        missingSections: validation.missingSections || ['Education', 'Experience', 'Technical Skills']
+        missingSections: validation.missingSections || ['Education / University details', 'Work or Project Experience', 'Technical Skills']
       });
     }
 
-    // 2. Verified as a genuine resume! Calculate ATS score and section audit
-    const analysisResult = analyzeResumeATS(fileText, filename);
+    if (validation.departmentMismatch) {
+      return res.status(422).json({
+        success: false,
+        isResume: true,
+        departmentMismatch: true,
+        error: 'Please upload a resume corresponding to your selected department.',
+        filename,
+        targetDepartment: validation.targetDepartment,
+        conflictingDepartment: validation.conflictingDepartment
+      });
+    }
+
+    // 2. Verified as genuine department-aligned resume! Calculate ATS score and diagnostics
+    const analysisResult = analyzeResumeATS(fileText, filename, department);
     storeResume(analysisResult);
 
     return res.json({
       success: true,
       isResume: true,
-      message: `Resume "${filename}" verified and evaluated successfully.`,
+      message: `Resume "${filename}" verified and evaluated successfully for ${department || 'your department'}.`,
       data: analysisResult
     });
   } catch (err) {
@@ -116,7 +113,7 @@ router.post('/analyze', upload.single('resumeFile'), async (req, res) => {
     res.status(500).json({
       success: false,
       isResume: false,
-      error: 'An internal error occurred while parsing the resume file. Please ensure it is a valid PDF or DOCX file.'
+      error: 'Please upload a valid resume.'
     });
   }
 });

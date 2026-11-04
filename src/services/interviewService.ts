@@ -14,7 +14,8 @@ export const interviewService = {
     subject?: string, 
     count: number = 5,
     department?: string,
-    difficulty: string = 'Intermediate'
+    difficulty: string = 'Intermediate',
+    round: string = 'technical'
   ): Promise<InterviewQuestion[]> {
     try {
       const queryParams = new URLSearchParams();
@@ -22,6 +23,7 @@ export const interviewService = {
       if (subject && subject !== 'All') queryParams.append('subject', subject);
       if (difficulty) queryParams.append('difficulty', difficulty);
       if (count) queryParams.append('count', count.toString());
+      if (round) queryParams.append('round', round);
 
       const res = await fetch(`/api/interview/questions?${queryParams.toString()}`);
       if (res.ok) {
@@ -204,9 +206,10 @@ export const interviewService = {
     }));
   },
 
-  async getLatestReport(): Promise<InterviewResultScorecard> {
+  async getLatestReport(department?: string): Promise<InterviewResultScorecard | null> {
     try {
-      const res = await fetch('/api/interview/latest');
+      const url = department ? `/api/interview/latest?department=${encodeURIComponent(department)}` : '/api/interview/latest';
+      const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.report) {
@@ -217,12 +220,17 @@ export const interviewService = {
     } catch (err) {
       console.warn('Backend /api/interview/latest failed, checking cache', err);
     }
-    return ApiService.getItem<InterviewResultScorecard>(LATEST_REPORT_KEY, null as any);
+    const cached = ApiService.getItem<InterviewResultScorecard | null>(LATEST_REPORT_KEY, null);
+    if (cached && department && cached.department && !cached.department.toLowerCase().includes(department.toLowerCase())) {
+      return null;
+    }
+    return cached;
   },
 
-  async getHistory(): Promise<InterviewResultScorecard[]> {
+  async getHistory(department?: string): Promise<InterviewResultScorecard[]> {
     try {
-      const res = await fetch('/api/interview/history');
+      const url = department ? `/api/interview/history?department=${encodeURIComponent(department)}` : '/api/interview/history';
+      const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.history)) {
@@ -233,7 +241,11 @@ export const interviewService = {
     } catch (err) {
       console.warn('Backend /api/interview/history failed, checking cache', err);
     }
-    return ApiService.getItem<InterviewResultScorecard[]>(HISTORY_KEY, []);
+    const cached = ApiService.getItem<InterviewResultScorecard[]>(HISTORY_KEY, []);
+    if (department && cached.length > 0) {
+      return cached.filter(c => c.department && c.department.toLowerCase().includes(department.toLowerCase()));
+    }
+    return cached;
   },
 
   async submitInterviewSession(

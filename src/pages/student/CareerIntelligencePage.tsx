@@ -1,36 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { careerService } from '../../services/careerService';
 import { CareerRole } from '../../types';
 import { Compass, Sparkles, TrendingUp, DollarSign, CheckCircle2, AlertCircle, ArrowRight, Briefcase } from 'lucide-react';
 
 export const CareerIntelligencePage: React.FC = () => {
+  const { user } = useAuth();
   const [roles, setRoles] = useState<CareerRole[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    careerService.getCareerRoles().then(setRoles);
-  }, []);
+    careerService.getCareerRoles(user?.department).then(setRoles);
+  }, [user?.department]);
+
+  const topRole = roles[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold">
+              {user?.department || 'Department Intelligence'}
+            </span>
+          </div>
           <h1 className="text-xl font-bold text-[#173B63] flex items-center gap-2">
             <Compass className="w-6 h-6 text-[#7567C7]" />
             <span>AI Career Intelligence & Role Predictor</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Predictive machine learning role matchmaking based on your academic transcripts, code assignments, and mock interview performance
+            Predictive career role recommendations calibrated strictly for {user?.department || 'your department'}.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1.5 rounded-lg bg-teal-50 text-[#2F9C95] font-semibold border border-teal-200 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            Top Match: AI Engineer (92%)
-          </span>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {topRole && (
+            <span className="text-xs px-3 py-1.5 rounded-lg bg-teal-50 text-[#2F9C95] font-semibold border border-teal-200 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Top Match: {topRole.title} ({topRole.matchScore}%)
+            </span>
+          )}
         </div>
       </div>
 
